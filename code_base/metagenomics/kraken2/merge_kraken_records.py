@@ -54,8 +54,17 @@ def parse_args():
     else:
 
         umap_model_path = ''
+    
+    # Rescale data toggle
+    if '--rescale' in argv:
+        
+        rescale_toggle = True
+    
+    else:
+        
+        rescale_toggle = False
 
-    return k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path
+    return k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle
 
 ### ---------------------------------------- ###
 
@@ -353,6 +362,12 @@ for rid,path in zip(reports_ids, k2_reports):
 reports_data = pd.concat(reports_data, axis=1)
 reports_data.fillna(0, inplace=True)
 reports_data.index = reports_data.index.set_names(['clade'])
+
+if rescale_toggle:
+    
+    norm_factor = 100 / reports_data.sum(axis=0).values
+    reports_data = reports_data.multiply(norm_factor)
+
 reports_data = reports_data.reset_index(drop=False)
 
 reports_data.to_csv('kraken2_summary.tsv', sep='\t', header=True, index=False)
