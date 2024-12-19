@@ -1,0 +1,412 @@
+{
+    "scope_of_work": [
+        "atacseq",
+        "image_processing",
+        "integration",
+        "lipidomics",
+        "machine_learning",
+        "metabolomics",
+        "metagenomics",
+        "methylation",
+        "microarray",
+        "motif_enrichment",
+        "rnaseq",
+        "secrecy",
+        "term_enrichment",
+        "utils",
+        "variant_calling",
+        "visualizations"
+    ],
+    "code": {
+        "annotate_atac.py": {
+            "path": "atacseq/differential_analysis/annotate_atac.py",
+            "main_tag": "atacseq",
+            "secondary_tag": "differential_analysis"
+        },
+        "filter_diff_analysis.py": {
+            "path": "atacseq/differential_analysis/filter_diff_analysis.py",
+            "main_tag": "atacseq",
+            "secondary_tag": "differential_analysis"
+        },
+        "filter_diff_analysis_significant_only.py": {
+            "path": "atacseq/differential_analysis/filter_diff_analysis_significant_only.py",
+            "main_tag": "atacseq",
+            "secondary_tag": "differential_analysis"
+        },
+        "run_deseq2_atac.R": {
+            "path": "atacseq/differential_analysis/run_deseq2_atac.R",
+            "main_tag": "atacseq",
+            "secondary_tag": "differential_analysis"
+        },
+        "atacseq_peaks_visualizer.py": {
+            "path": "atacseq/peaks_visualization/atacseq_peaks_visualizer.py",
+            "main_tag": "atacseq",
+            "secondary_tag": "peaks_visualization"
+        },
+        "ATACSeq_analysis": {
+            "path": "git@github.com:mmarchetti90/ATACSeq_analysis.git",
+            "main_tag": "atacseq",
+            "secondary_tag": "preprocessing"
+        },
+        "MalpighianTubulesAnalysis": {
+            "path": "git@github.com:mmarchetti90/MalpighianTubulesAnalysis.git",
+            "main_tag": "image_processing",
+            "secondary_tag": "malpighian_tubules"
+        },
+        "image_utils.py": {
+            "path": "image_processing/utils/image_utils.py",
+            "main_tag": "image_processing",
+            "secondary_tag": "utils"
+        },
+        "extract_genes_with_binding_site.py": {
+            "path": "integration/atac_meme/extract_genes_with_binding_site.py",
+            "main_tag": "integration",
+            "secondary_tag": "atac_meme"
+        },
+        "DEGs_ATAC_Coverage.py": {
+            "path": "integration/atac_rnaseq/DEGs_ATAC_Coverage.py",
+            "main_tag": "integration",
+            "secondary_tag": "atac_rnaseq"
+        },
+        "atac_rna_integration.py": {
+            "path": "integration/atac_rnaseq/atac_rna_integration.py",
+            "main_tag": "integration",
+            "secondary_tag": "atac_rnaseq"
+        },
+        "batch_correction.R": {
+            "path": "integration/batch_correction/batch_correction.R",
+            "main_tag": "integration",
+            "secondary_tag": "batch_correction"
+        },
+        "lipidomics_analysis": {
+            "path": "git@github.com:mmarchetti90/metabolomics_lipidomics.git",
+            "main_tag": "lipidomics",
+            "secondary_tag": "differential_analysis"
+        },
+        "ml_models_test.py": {
+            "path": "machine_learning/exploratory_analysis/ml_models_test.py",
+            "main_tag": "machine_learning",
+            "secondary_tag": "exploratory_analysis"
+        },
+        "metabolomics_analysis": {
+            "path": "git@github.com:mmarchetti90/metabolomics_lipidomics.git",
+            "main_tag": "metabolomics",
+            "secondary_tag": "differential_analysis"
+        },
+        "BacterialGenomeAssembly": {
+            "path": "git@github.com:mmarchetti90/BacterialGenomeAssembly.git",
+            "main_tag": "metagenomics",
+            "secondary_tag": "assembly"
+        },
+        "merge_kraken_records.py": {
+            "path": "metagenomics/kraken2/merge_kraken_records.py",
+            "main_tag": "metagenomics",
+            "secondary_tag": "kraken2"
+        },
+        "nextflow_kraken2": {
+            "path": "git@github.com:mmarchetti90/nextflow_kraken2.git",
+            "main_tag": "metagenomics",
+            "secondary_tag": "kraken2"
+        },
+        "vcf2msa": {
+            "path": "git@github.com:mmarchetti90/vcf2msa.git",
+            "main_tag": "metagenomics",
+            "secondary_tag": "multiple_alignment"
+        },
+        "shannon_index.py": {
+            "path": "metagenomics/utils/shannon_index.py",
+            "main_tag": "metagenomics",
+            "secondary_tag": "utils"
+        },
+        "methylation_analysis_islands.R": {
+            "path": "methylation/differential_analysis/methylation_analysis_islands.R",
+            "main_tag": "methylation",
+            "secondary_tag": "differential_analysis"
+        },
+        "methylation_analysis_tss.R": {
+            "path": "methylation/differential_analysis/methylation_analysis_tss.R",
+            "main_tag": "methylation",
+            "secondary_tag": "differential_analysis"
+        },
+        "methylation_reanalysis.R": {
+            "path": "methylation/differential_analysis/methylation_reanalysis.R",
+            "main_tag": "methylation",
+            "secondary_tag": "differential_analysis"
+        },
+        "Bismark_WGBS": {
+            "path": "git@github.com:mmarchetti90/Bismark_WGBS.git",
+            "main_tag": "methylation",
+            "secondary_tag": "preprocessing"
+        },
+        "long_reads_methylation": {
+            "path": "git@github.com:mmarchetti90/long_reads_methylation.git",
+            "main_tag": "methylation",
+            "secondary_tag": "preprocessing"
+        },
+        "annotate_affy_counts.py": {
+            "path": "microarray/differential_analysis/annotate_affy_counts.py",
+            "main_tag": "microarray",
+            "secondary_tag": "differential_analysis"
+        },
+        "annotate_affy_results.py": {
+            "path": "microarray/differential_analysis/annotate_affy_results.py",
+            "main_tag": "microarray",
+            "secondary_tag": "differential_analysis"
+        },
+        "run_affy.R": {
+            "path": "microarray/differential_analysis/run_affy.R",
+            "main_tag": "microarray",
+            "secondary_tag": "differential_analysis"
+        },
+        "extract_promoter_sequences.py": {
+            "path": "motif_enrichment/get_promoter_seqs/extract_promoter_sequences.py",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "get_promoter_seqs"
+        },
+        "run_meme_fimo.sh": {
+            "path": "motif_enrichment/meme_fimo/run_meme_fimo.sh",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "meme_fimo"
+        },
+        "summarize_fimo.py": {
+            "path": "motif_enrichment/meme_fimo/summarize_fimo.py",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "meme_fimo"
+        },
+        "run_meme_sea.sh": {
+            "path": "motif_enrichment/meme_sea/run_meme_sea.sh",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "meme_sea"
+        },
+        "music_deconvolution.R": {
+            "path": "rnaseq/deconvolution/music_deconvolution.R",
+            "main_tag": "rnaseq",
+            "secondary_tag": "deconvolution"
+        },
+        "annotate_dea.py": {
+            "path": "rnaseq/differential_expression/annotate_dea.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "dea_utest.py": {
+            "path": "rnaseq/differential_expression/dea_utest.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "dexseq_sleuth_integration.R": {
+            "path": "rnaseq/differential_expression/dexseq_sleuth_integration.R",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "run_deseq2.R": {
+            "path": "rnaseq/differential_expression/run_deseq2.R",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "run_dexseq.R": {
+            "path": "rnaseq/differential_expression/run_dexseq.R",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "run_sleuth.R": {
+            "path": "rnaseq/differential_expression/run_sleuth.R",
+            "main_tag": "rnaseq",
+            "secondary_tag": "differential_expression"
+        },
+        "gene_signature.py": {
+            "path": "rnaseq/gene_signature/gene_signature.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "gene_signature"
+        },
+        "plot_mrna_isoforms.py": {
+            "path": "rnaseq/isoseq_isoforms/plot_mrna_isoforms.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "isoseq_isoforms"
+        },
+        "DiagnosticRNASeq": {
+            "path": "git@github.com:mmarchetti90/DiagnosticRNASeq.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "preprocessing"
+        },
+        "IsoseqAnalysis": {
+            "path": "git@github.com:mmarchetti90/IsoseqAnalysis.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "preprocessing"
+        },
+        "RNASeq_Analysis": {
+            "path": "git@github.com:mmarchetti90/RNASeq_Analysis.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "preprocessing"
+        },
+        "check_strandness.py": {
+            "path": "rnaseq/qc/check_strandness.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "qc"
+        },
+        "rna_qc.py": {
+            "path": "rnaseq/qc/rna_qc.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "qc"
+        },
+        "scRNA-Seq-analysis": {
+            "path": "git@github.com:mmarchetti90/scRNA-Seq-analysis.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "single_cell"
+        },
+        "splice_check": {
+            "path": "git@github.com:mmarchetti90/splice_check.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "splicing"
+        },
+        "GeneExpressionSurvival": {
+            "path": "git@github.com:mmarchetti90/GeneExpressionSurvival.git",
+            "main_tag": "rnaseq",
+            "secondary_tag": "survival"
+        },
+        "TXT-Encryption": {
+            "path": "git@github.com:mmarchetti90/TXT-Encryption.git",
+            "main_tag": "secrecy",
+            "secondary_tag": "encryption"
+        },
+        "preranked_gsea.R": {
+            "path": "term_enrichment/gsea/preranked_gsea.R",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "gsea"
+        },
+        "enrichment_analysis_1.py": {
+            "path": "term_enrichment/ora/enrichment_analysis_1.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "ora"
+        },
+        "enrichment_analysis_2.py": {
+            "path": "term_enrichment/ora/enrichment_analysis_2.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "ora"
+        },
+        "prep_for_revigo.py": {
+            "path": "term_enrichment/ora/prep_for_revigo.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "ora"
+        },
+        "prep_annotations.py": {
+            "path": "term_enrichment/preprocessing/prep_annotations.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "preprocessing"
+        },
+        "gdc_deseq2_get_rlog_counts.R": {
+            "path": "utils/counts_table_merge/gdc_deseq2_get_rlog_counts.R",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "gdc_merge_counts.py": {
+            "path": "utils/counts_table_merge/gdc_merge_counts.py",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "gdc_merge_tpms.py": {
+            "path": "utils/counts_table_merge/gdc_merge_tpms.py",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "merge_counts_v1.sh": {
+            "path": "utils/counts_table_merge/merge_counts_v1.sh",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "merge_counts_v2.sh": {
+            "path": "utils/counts_table_merge/merge_counts_v2.sh",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "merge_counts_v3.sh": {
+            "path": "utils/counts_table_merge/merge_counts_v3.sh",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "merge_met_cov.py": {
+            "path": "utils/counts_table_merge/merge_met_cov.py",
+            "main_tag": "utils",
+            "secondary_tag": "counts_table_merge"
+        },
+        "various_utils.py": {
+            "path": "utils/general_utils/various_utils.py",
+            "main_tag": "utils",
+            "secondary_tag": "general_utils"
+        },
+        "genomic_utils.py": {
+            "path": "utils/genomic_utils/genomic_utils.py",
+            "main_tag": "utils",
+            "secondary_tag": "genomic_utils"
+        },
+        "get_contig_size.py": {
+            "path": "utils/genomic_utils/get_contig_size.py",
+            "main_tag": "utils",
+            "secondary_tag": "genomic_utils"
+        },
+        "get_genes_bed.py": {
+            "path": "utils/genomic_utils/get_genes_bed.py",
+            "main_tag": "utils",
+            "secondary_tag": "genomic_utils"
+        },
+        "two_level_nested_analysis.py": {
+            "path": "utils/nested_analysis/two_level_nested_analysis.py",
+            "main_tag": "utils",
+            "secondary_tag": "nested_analysis"
+        },
+        "nextflow_variant_calling": {
+            "path": "git@github.com:mmarchetti90/nextflow_variant_calling.git",
+            "main_tag": "variant_calling",
+            "secondary_tag": "preprocessing"
+        },
+        "filter_vcf.py": {
+            "path": "variant_calling/vcf_tools/filter_vcf.py",
+            "main_tag": "variant_calling",
+            "secondary_tag": "vcf_tools"
+        },
+        "reformat_vcf.py": {
+            "path": "variant_calling/vcf_tools/reformat_vcf.py",
+            "main_tag": "variant_calling",
+            "secondary_tag": "vcf_tools"
+        },
+        "summarize_vcf.py": {
+            "path": "variant_calling/vcf_tools/summarize_vcf.py",
+            "main_tag": "variant_calling",
+            "secondary_tag": "vcf_tools"
+        },
+        "vep_rest_api.py": {
+            "path": "variant_calling/vep/vep_rest_api.py",
+            "main_tag": "variant_calling",
+            "secondary_tag": "vep"
+        },
+        "rlog_pheatmap.R": {
+            "path": "visualizations/differential_expression/rlog_pheatmap.R",
+            "main_tag": "visualizations",
+            "secondary_tag": "differential_expression"
+        },
+        "run_triwise.R": {
+            "path": "visualizations/differential_expression/run_triwise.R",
+            "main_tag": "visualizations",
+            "secondary_tag": "differential_expression"
+        },
+        "volcano_plots.R": {
+            "path": "visualizations/differential_expression/volcano_plots.R",
+            "main_tag": "visualizations",
+            "secondary_tag": "differential_expression"
+        },
+        "dot_and_boxplot.py": {
+            "path": "visualizations/exploratory/dot_and_boxplot.py",
+            "main_tag": "visualizations",
+            "secondary_tag": "exploratory"
+        },
+        "sunburst_composition.py": {
+            "path": "visualizations/metagenomics/sunburst_composition.py",
+            "main_tag": "visualizations",
+            "secondary_tag": "metagenomics"
+        },
+        "circos_plot.py": {
+            "path": "visualizations/variants/circos_plot.py",
+            "main_tag": "visualizations",
+            "secondary_tag": "variants"
+        }
+    }
+}

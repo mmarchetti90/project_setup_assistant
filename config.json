@@ -1,0 +1,14 @@
+{
+    "summarization_model": "facebook/bart-large-cnn",
+    "summarization_model_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/bart-large-cnn",
+    "zeroshot_model": "facebook/bart-large-mnli",
+    "zeroshot_model_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/bart-large-mnli",
+    "ignored_patters": [
+        "*.ot",
+        "*.h5",
+        "*.safetensors",
+        "*.msgpack"
+    ],
+    "code_dir_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/code_base",
+    "code_manifest_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/code_base/code_manifest.json"
+}

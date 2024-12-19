@@ -1,0 +1,87 @@
+{
+    "long_reads_methylation": {
+        "path": "git@github.com:mmarchetti90/long_reads_methylation.git",
+        "main_tag": "methylation",
+        "secondary_tag": "preprocessing"
+    },
+    "nextflow_kraken2": {
+        "path": "git@github.com:mmarchetti90/nextflow_kraken2.git",
+        "main_tag": "metagenomics",
+        "secondary_tag": "kraken2"
+    },
+    "splice_check": {
+        "path": "git@github.com:mmarchetti90/splice_check.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "splicing"
+    },
+    "MalpighianTubulesAnalysis": {
+        "path": "git@github.com:mmarchetti90/MalpighianTubulesAnalysis.git",
+        "main_tag": "image_processing",
+        "secondary_tag": "malpighian_tubules"
+    },
+    "RNASeq_Analysis": {
+        "path": "git@github.com:mmarchetti90/RNASeq_Analysis.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "preprocessing"
+    },
+    "vcf2msa": {
+        "path": "git@github.com:mmarchetti90/vcf2msa.git",
+        "main_tag": "metagenomics",
+        "secondary_tag": "multiple_alignment"
+    },
+    "GeneExpressionSurvival": {
+        "path": "git@github.com:mmarchetti90/GeneExpressionSurvival.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "survival"
+    },
+    "scRNA-Seq-analysis": {
+        "path": "git@github.com:mmarchetti90/scRNA-Seq-analysis.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "single_cell"
+    },
+    "ATACSeq_analysis": {
+        "path": "git@github.com:mmarchetti90/ATACSeq_analysis.git",
+        "main_tag": "atacseq",
+        "secondary_tag": "preprocessing"
+    },
+    "IsoseqAnalysis": {
+        "path": "git@github.com:mmarchetti90/IsoseqAnalysis.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "preprocessing"
+    },
+    "BacterialGenomeAssembly": {
+        "path": "git@github.com:mmarchetti90/BacterialGenomeAssembly.git",
+        "main_tag": "metagenomics",
+        "secondary_tag": "assembly"
+    },
+    "Bismark_WGBS": {
+        "path": "git@github.com:mmarchetti90/Bismark_WGBS.git",
+        "main_tag": "methylation",
+        "secondary_tag": "preprocessing"
+    },
+    "metabolomics_analysis": {
+        "path": "git@github.com:mmarchetti90/metabolomics_lipidomics.git",
+        "main_tag": "metabolomics",
+        "secondary_tag": "differential_analysis"
+    },
+    "lipidomics_analysis": {
+        "path": "git@github.com:mmarchetti90/metabolomics_lipidomics.git",
+        "main_tag": "lipidomics",
+        "secondary_tag": "differential_analysis"
+    },
+    "nextflow_variant_calling": {
+        "path": "git@github.com:mmarchetti90/nextflow_variant_calling.git",
+        "main_tag": "variant_calling",
+        "secondary_tag": "preprocessing"
+    },
+    "DiagnosticRNASeq": {
+        "path": "git@github.com:mmarchetti90/DiagnosticRNASeq.git",
+        "main_tag": "rnaseq",
+        "secondary_tag": "preprocessing"
+    },
+    "TXT-Encryption": {
+        "path": "git@github.com:mmarchetti90/TXT-Encryption.git",
+        "main_tag": "secrecy",
+        "secondary_tag": "encryption"
+    }
+}

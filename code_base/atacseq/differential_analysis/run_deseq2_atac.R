@@ -1,0 +1,206 @@
+#!/usr/bin/Rscript
+
+# This script runs DESeq2 on ATAC peaks data from my ATAC-Seq Nextflow pipeline using information read in from Comparison files
+# N.B. This is designed for simple binary comparisons as described in a comparison design file in the column "condition" and field "reference"
+# N.B. DAA = Differential Accessibility Analysis
+
+### ---------------------------------------- ###
+
+parseArgs <- function() {
+
+	# Read command line arguments
+	args <- commandArgs()
+
+	# Counts file
+	counts_file <- args[match("--counts", args) + 1]
+	
+	# Design file
+	design_file <- args[match("--design", args) + 1]
+	
+	# Gene counts lower limit
+	min_reads <- args[match("--mincounts", args) + 1]
+
+	# Adjusted p value threshold
+	pval <- args[match("--p_thr", args) + 1]
+
+	return(c(counts_file, design_file, min_reads, pval))
+
+}
+
+### ---------------------------------------- ###
+
+importDesign <- function(design_file) {
+
+	# Reading design file
+	temp <- read.delim(design_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+
+	# Extracting analysis name
+	analysis_name <- as.character(temp[1, 2])
+
+	# Extracting comparison formula
+	condition <- as.formula(temp[2, 2])
+
+	# Extracting reference
+	reference <- as.character(temp[3, 2])
+
+	# Generating sample_info dataframe
+	sample_info <- as.data.frame(temp[5 : nrow(temp), 2 : ncol(temp)], stringsAsFactors = TRUE)
+	rownames(sample_info) <- temp[5 : nrow(temp), 1]
+	colnames(sample_info) <- temp[4, 2 : ncol(temp)]
+
+	return(list("analysis_name" = analysis_name, "formula" = condition, "reference" = reference, "sample_info" = sample_info))
+
+}
+
+### ---------------------------------------- ###
+
+runDEA <- function(params, cnts, des) {
+
+	# Removing samples from design not in counts table
+  des$sample_info <- subset(des$sample_info, rownames(des$sample_info) %in% colnames(cnts))
+  	
+	# Filtering and ordering counts samples
+	cnts <- cnts[, rownames(des$sample_info)]
+
+	# Creating a DESeq2 data matrix
+	dds <- DESeqDataSetFromMatrix(countData = cnts, colData = des$sample_info, design = des$formula)
+
+	# Filtering out genes with too few reads in more than half the samples
+	dds <- dds[rowSums(counts(dds) >= as.integer(params[3])) >= ncol(dds) / 2,]
+
+	# Finding parameter to relevel
+	for(col in colnames(des$sample_info)) {
+	  
+		if(des$reference %in% des$sample_info[,col]) {
+		  
+			comparison_parameter <- col
+			break
+			
+		}
+	  
+	}
+
+	# Releveling parameter to reference
+	dds[[comparison_parameter]] <- relevel(dds[[comparison_parameter]], ref=des$reference)
+	dds[[comparison_parameter]] <- droplevels(dds[[comparison_parameter]])
+
+	# Differential expression analysis
+	dds <- DESeq(dds, parallel = T)
+	
+	# Save RDS object
+	saveRDS(dds, file = paste("DAA_", des$analysis_name, ".rds", sep = ""))
+
+	# Differential expression analysis
+	contrast <- c(comparison_parameter, rev(levels(dds[[comparison_parameter]])))
+	analysis <- results(dds, alpha = as.numeric(params[4]), contrast = contrast)
+	#analysis <- lfcShrink(dds, contrast = contrast, res = analysis, type = 'ashr')
+	#output_name <- paste("DAA_", des$analysis_name, ".tsv", sep = "")
+	#write.table(analysis, output_name, sep = "\t")
+
+	### QUALITY CONTROL PLOTS ---------------- ###
+	
+	# MA plot
+	output_name <- paste("DAA_", des$analysis_name, "_MA-Plot.png", sep = "")
+	png(file = output_name, width = 600, height = 600)
+	plotMA(analysis, ylim=c(-5, 5))
+	dev.off()
+
+	# Regularized log transformation
+	rld <- rlog(dds, blind = T)
+	
+	# Distance heatmap
+	sampleDists <- dist(t(assay(rld)))
+	colors <- colorRampPalette(rev(brewer.pal(n = 9, name = "Blues")))(255)
+	output_name <- paste("DAA_", des$analysis_name, "_SampleDistance.png", sep = "")
+	pheatmap(as.matrix(sampleDists), clustering_distance_rows = sampleDists, clustering_distance_cols = sampleDists, color = colors, filename = output_name)
+	
+	# PCA
+	output_name <- paste("DAA_", des$analysis_name, "_PCA.png", sep = "")
+	png(file = output_name, width = 600, height = 600)
+	pca_plot <- plotPCA(rld, intgroup = c(comparison_parameter))
+	print(pca_plot)
+	dev.off()
+	
+	# Plotting variance vs mean value
+	gene_mean <- log10(rowMeans(assay(rld)))
+	gene_variance <- log10(rowVars(assay(rld)))
+	output_name <- paste("DAA_", des$analysis_name, "_MeanVsVariance.png", sep = "")
+	qplot(gene_mean, gene_variance) +
+	  geom_point() +
+	  xlab("Log10 Peak Mean") +
+	  ylab("Log10 Peak Variance")
+	ggsave(filename=output_name, dpi=300)
+
+	# Count genes by behaviour
+	genes_up <- sum(analysis$log2FoldChange > 0 & analysis$padj < as.double(params[4]), na.rm = TRUE)
+	genes_down <- sum(analysis$log2FoldChange < 0 & analysis$padj < as.double(params[4]), na.rm = TRUE)
+	genes_ns <- sum(analysis$padj > as.double(params[4]), na.rm = TRUE)
+
+	# Remove genes with NA padj
+	analysis <- subset(analysis, ! is.na(analysis$padj))
+
+	# Prepare data for Volcano plot
+	fold_change <- analysis$log2FoldChange
+	log_pval <- - log10(analysis$padj)
+	color <- rep(paste("NS (", genes_ns, ")", sep = ""), length(fold_change))
+	color[fold_change < 0 & log_pval > - log10(as.double(params[4]))] <- paste("Down (", genes_down, ")", sep = "")
+	color[fold_change > 0 & log_pval > - log10(as.double(params[4]))] <- paste("Up (", genes_up, ")", sep = "")
+	color_palette <- c("green", "red", "gray")
+	names(color_palette) <- c(paste("Up (", genes_up, ")", sep = ""),
+	                          paste("Down (", genes_down, ")", sep = ""),
+	                          paste("NS (", genes_ns, ")", sep = ""))
+	
+	# Volcano plot
+	output_name <- paste("DAA_", des$analysis_name, "_VolcanoPlot.png", sep = "")
+	qplot(fold_change, log_pval, fill = factor(color)) +
+	  geom_point(shape = 21, color = "black", size = 3, stroke = 0.5) +
+	  xlab("Log2 Fold Change") +
+	  ylab("- Log10 Pvalue") +
+	  scale_fill_manual(values = color_palette) +
+	  theme(legend.title = element_blank(),
+	        legend.text = element_text(size=14, face = "bold"),
+	        axis.text.y = element_text(size=12),
+	        axis.text.x = element_text(size=12),
+	        axis.title.y = element_text(size=14, face = "bold"),
+	        axis.title.x = element_text(size=14, face = "bold"),
+	        panel.background = element_blank(),
+	        panel.grid.major = element_blank(), 
+	        panel.grid.minor = element_blank(),
+	        panel.border = element_rect(colour = "black", fill=NA, size=3))
+	ggsave(filename=output_name, width = 20, height = 25, units = "cm", dpi=300)
+
+	return(analysis)
+
+}
+
+### ------------------MAIN------------------ ###
+
+library(DESeq2)
+library(ggplot2)
+library(RColorBrewer)
+library(pheatmap)
+
+parameters <- parseArgs()
+
+# Import counts and experimental design
+counts <- read.delim(as.character(parameters[1]), header = TRUE, sep = "\t", check.names = FALSE)
+peaks_info <- counts[, 1:8]
+counts <- counts[, 9:ncol(counts)]
+rownames(counts) <- paste('peak_', peaks_info$PeakID, sep='')
+rownames(peaks_info) <- paste('peak_', peaks_info$PeakID, sep='')
+design <- importDesign(as.character(parameters[2]))
+
+# Running DESeq2
+analysis <- runDEA(parameters, counts, design)
+analysis <- as.data.frame(analysis)
+
+# Add gene info
+peaks_info <- peaks_info[rownames(analysis),]
+analysis <- cbind(peaks_info, analysis[rownames(peaks_info),])
+
+# Sort by padj
+analysis <- analysis[order(analysis$padj, decreasing = FALSE),]
+
+# Save to file
+output_name <- paste("DAA_", design$analysis_name, ".tsv", sep="")
+write.table(analysis, output_name, sep = "\t", row.names=FALSE)
