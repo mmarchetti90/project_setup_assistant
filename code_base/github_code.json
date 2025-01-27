@@ -1,4 +1,9 @@
 {
+    "metagenome_assembly": {
+        "path": "git@github.com:mmarchetti90/metagenome_assembly.git",
+        "main_tag": "methylation",
+        "secondary_tag": "assembly"
+    },
     "long_reads_methylation": {
         "path": "git@github.com:mmarchetti90/long_reads_methylation.git",
         "main_tag": "methylation",

@@ -118,6 +118,11 @@
             "main_tag": "metagenomics",
             "secondary_tag": "utils"
         },
+        "metagenome_assembly": {
+            "path": "git@github.com:mmarchetti90/metagenome_assembly.git",
+            "main_tag": "methylation",
+            "secondary_tag": "assembly"
+        },
         "methylation_analysis_islands.R": {
             "path": "methylation/differential_analysis/methylation_analysis_islands.R",
             "main_tag": "methylation",
@@ -332,6 +337,11 @@
             "path": "utils/general_utils/various_utils.py",
             "main_tag": "utils",
             "secondary_tag": "general_utils"
+        },
+        "fix_fastq_pair.sh": {
+            "path": "utils/genomic_utils/fix_fastq_pair.sh",
+            "main_tag": "utils",
+            "secondary_tag": "genomic_utils"
         },
         "genomic_utils.py": {
             "path": "utils/genomic_utils/genomic_utils.py",
