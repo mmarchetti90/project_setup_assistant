@@ -183,6 +183,16 @@
             "main_tag": "motif_enrichment",
             "secondary_tag": "meme_sea"
         },
+        "annotate_counts_matrix.py": {
+            "path": "rnaseq/counts_matrix_annotation/annotate_counts_matrix.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "counts_matrix_annotation"
+        },
+        "counts_to_tpm.py": {
+            "path": "rnaseq/counts_matrix_annotation/counts_to_tpm.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "counts_matrix_annotation"
+        },
         "music_deconvolution.R": {
             "path": "rnaseq/deconvolution/music_deconvolution.R",
             "main_tag": "rnaseq",
