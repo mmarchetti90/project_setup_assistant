@@ -128,6 +128,8 @@ gtf = gtf[['gene_id', 'gene_symbol', 'biotype', 'seqname', 'start', 'end', 'stra
 
 merged_data = pd.merge(gtf, counts, how='outer', on='gene_id')
 
+merged_data.fillna(0, inplace=True)
+
 out_name = 'annotated_raw_counts.tsv'
 
 merged_data.to_csv(out_name, sep='\t', index=False)
@@ -140,7 +142,11 @@ sample_cols = [c for c in merged_data.columns if c not in gtf.columns.values]
 
 for sample in sample_cols:
     
-    rpk = merged_data[sample].values / (merged_data['end'].values - merged_data['start'].values)
+    gene_lengths = (merged_data['end'].values - merged_data['start'].values)
+    
+    gene_lengths[gene_lengths == 0] = 1
+    
+    rpk = merged_data[sample].values / gene_lengths
     
     scaling_factor = rpk.sum() / 1e6
     
