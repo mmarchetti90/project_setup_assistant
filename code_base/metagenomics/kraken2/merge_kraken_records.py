@@ -339,6 +339,7 @@ import seaborn as sns
 import umap
 
 from matplotlib import pyplot as plt
+from scipy.stats import pearsonr
 from skbio.stats.ordination import pcoa
 from sklearn.decomposition import PCA
 from sklearn.neighbors import kneighbors_graph
@@ -396,6 +397,23 @@ stats.index = stats.index.set_names(['sample'])
 stats = stats.reset_index(drop=False)
 
 stats.to_csv('sample_stats.tsv', sep='\t', header=True, index=False)
+
+# Plot relationship between Richness and Diversity
+r, p = pearsonr(stats.log10_richness.values, stats.shannon_index.values, alternative='two-sided')
+m, c = np.polyfit(stats.log10_richness.values, stats.shannon_index.values, 1)
+
+plt.figure(figsize=(5, 5.25))
+ax = sns.scatterplot(stats, x='log10_richness', y='shannon_index',
+                     size=5, marker='o', color='deepskyblue', edgecolor='black', linewidth=1,
+                     legend=False)
+fit_line_x = np.linspace(ax.get_xlim()[0],ax.get_xlim()[1],100)
+plt.plot(fit_line_x, m * fit_line_x + c, '--', color='black', linewidth=1, alpha=0.75)
+plt.xlabel('log$_{10}$(Richness)', fontweight='bold')
+plt.ylabel("Shannon's index", fontweight='bold')
+plt.title(f'r = {r:.3f}\np = {p:.3e}', loc='left', fontweight='bold')
+plt.tight_layout()
+plt.savefig('richness_vs_diversity.png', dpi=300)
+plt.close()
 
 ### PCA + Umap
 
