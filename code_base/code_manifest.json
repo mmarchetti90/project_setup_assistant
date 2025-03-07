@@ -83,6 +83,11 @@
             "main_tag": "lipidomics",
             "secondary_tag": "differential_analysis"
         },
+        "fit_glm.py": {
+            "path": "machine_learning/exploratory_analysis/fit_glm.py",
+            "main_tag": "machine_learning",
+            "secondary_tag": "exploratory_analysis"
+        },
         "ml_models_test.py": {
             "path": "machine_learning/exploratory_analysis/ml_models_test.py",
             "main_tag": "machine_learning",
@@ -185,6 +190,11 @@
         },
         "annotate_counts_matrix.py": {
             "path": "rnaseq/counts_matrix_annotation/annotate_counts_matrix.py",
+            "main_tag": "rnaseq",
+            "secondary_tag": "counts_matrix_annotation"
+        },
+        "counts_to_rlog.R": {
+            "path": "rnaseq/counts_matrix_annotation/counts_to_rlog.R",
             "main_tag": "rnaseq",
             "secondary_tag": "counts_matrix_annotation"
         },
