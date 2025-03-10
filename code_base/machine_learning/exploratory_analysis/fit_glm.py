@@ -104,11 +104,17 @@ class fit_glm():
                 
                 else:
                 
-                    idx = [(i[:i.index('[')].replace('C(', '').replace(')', ''),
-                            i[i.index('['):].replace('[T.', '').replace(']', ''))
-                           for i in idx.split(':')]
+                    idx = idx.split(':')
+                    
+                    param = [i if '[' not in i else
+                             i[:i.index('[')].replace('C(', '').replace(')', '')
+                             for i in idx]
+                    
+                    baseline = [i[i.index('['):].replace('[T.', '').replace(']', '')
+                                for i in idx
+                                if '[' in i]
                 
-                    param, baseline = '_'.join([i[0] for i in idx]), '_'.join([i[1] for i in idx])
+                    param, baseline = '_'.join(param), '_'.join(baseline)
                 
                 results.append([var, param, baseline, coef, pval])
             
