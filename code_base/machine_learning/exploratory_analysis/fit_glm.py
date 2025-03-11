@@ -67,7 +67,7 @@ class fit_glm():
         # Init results table and log
         
         results = []
-        results_header = ['variable', 'parameter', 'baseline', 'coef', 'pval']
+        results_header = ['variable', 'parameter', 'value', 'coef', 'pval']
         log = ['#' * 40,
                'Fitting models with the following formula:',
                f'~ {formula_right}',
@@ -100,23 +100,23 @@ class fit_glm():
                 
                 if idx == 'Intercept':
                     
-                    param, baseline = 'Intercept', ''
-                
+                    param, value = 'Intercept', ''
+                    
                 else:
-                
+                    
                     idx = idx.split(':')
                     
                     param = [i if '[' not in i else
                              i[:i.index('[')].replace('C(', '').replace(')', '')
                              for i in idx]
                     
-                    baseline = [i[i.index('['):].replace('[T.', '').replace(']', '')
-                                for i in idx
-                                if '[' in i]
+                    value = [i[i.index('['):].replace('[T.', '').replace(']', '')
+                             for i in idx
+                             if '[' in i]
                 
-                    param, baseline = '_'.join(param), '_'.join(baseline)
+                    param, value = '_*_'.join(param), '_*_'.join(value)
                 
-                results.append([var, param, baseline, coef, pval])
+                results.append([var, param, value, coef, pval])
             
             # Update log
             
@@ -126,6 +126,28 @@ class fit_glm():
             log.append('')
             
         results = pd.DataFrame(results, columns=results_header)
+        
+        ### Add baseline info for categorical variables
+
+        results['baseline'] = np.repeat('', results.shape[0])
+
+        categorical_vars = np.unique(results.loc[results['value'] != '', 'parameter'])
+
+        for cat_var in categorical_vars:
+            
+            baseline = []
+            
+            for cv in cat_var.split('_*_'):
+            
+                b = np.sort(np.unique(self.exog[cv].values))[0]
+                
+                baseline.append(b)
+            
+            baseline = '_*_'.join(baseline)
+            
+            results.loc[results['parameter'] == cat_var, 'baseline'] = baseline
+        
+        results = results[['variable', 'parameter', 'baseline', 'value', 'coef', 'pval']]
         
         ### Adjust pvalues
 
@@ -147,6 +169,7 @@ class fit_glm():
 
 ### ------------------MAIN------------------ ###
 
+import numpy as np
 import pandas as pd
 
 from statsmodels.genmod.generalized_linear_model import GLM
