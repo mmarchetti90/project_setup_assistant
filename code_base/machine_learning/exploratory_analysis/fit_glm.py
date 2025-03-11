@@ -141,7 +141,7 @@ class fit_glm():
             
                 b = np.sort(np.unique(self.exog[cv].values))[0]
                 
-                baseline.append(b)
+                baseline.append(str(b))
             
             baseline = '_*_'.join(baseline)
             
