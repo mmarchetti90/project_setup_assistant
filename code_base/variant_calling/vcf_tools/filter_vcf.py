@@ -28,6 +28,15 @@ QD > 2.0 && QUAL > 20 && DP > 10 || TYPE == "SNP"
 This will generate two filters:
 1) Filter for QD, QUAL, and DP values
 2) Only keep SNPs
+
+If --pass_with_one_filter is set in the command line arguments, then variants that satisfy at least one filtering condition are kept.
+Otherwise, all filters have to be satisfied.
+
+e.g. A variant has depth 10 and quality 20. If the filter string is 'DP > 100 || QUAL > 10', then two filters are generated:
+1) Filter for DP (variant fails)
+2) Filter for QUAL (variant passes)
+With the --pass_with_one_filter option, the variant will pass.
+Without the --pass_with_one_filter option, the variant will be removed.
 """
 
 ### ---------------------------------------- ###
@@ -67,8 +76,17 @@ def parse_args():
     else:
         
         qual_filter_toggle = False
+    
+    # Whether to pass variants that fit all filters or at least one
+    if '--pass_with_one_filter' in argv:
+        
+        use_all_filters = False
+    
+    else:
+        
+        use_all_filters = True
 
-    return vcf_filter_raw, vcf_file, depth_filter_toggle, qual_filter_toggle
+    return vcf_filter_raw, vcf_file, depth_filter_toggle, qual_filter_toggle, use_all_filters
 
 ### ---------------------------------------- ###
 
@@ -144,7 +162,7 @@ def parse_vcf(path):
 
 def depth_outlier_filter(cols, data, toggle):
     
-    if toggle:
+    if toggle and len(data) >= 10:
 
         # Get depth mean and std
         info_col = cols.index('INFO')
@@ -164,7 +182,7 @@ def depth_outlier_filter(cols, data, toggle):
 
 def qual_outlier_filter(cols, data, toggle):
     
-    if toggle:
+    if toggle and len(data) >= 10:
 
         # Get depth mean and std
         qual_col = cols.index('QUAL')
@@ -294,7 +312,7 @@ def filter_vars(cols, data, vf):
     
     else:
         
-        var_filter = [sum([v[i] for v in var_filter]) > 0 for i in range(len(data))]
+        var_filter = [sum([v[i] for v in var_filter]) == len(parameters) for i in range(len(data))]
     
     return var_filter
 
@@ -305,7 +323,7 @@ from sys import argv
 ### IMPORT DATA ----------------------------- ###
 
 # Parse cli
-vcf_filter_raw, vcf_file, depth_filter_toggle, qual_filter_toggle = parse_args()
+vcf_filter_raw, vcf_file, depth_filter_toggle, qual_filter_toggle, use_all_filters = parse_args()
 
 # Parse filter
 vcf_filter = parse_vcf_filter(vcf_filter_raw)
@@ -340,9 +358,13 @@ if len(vcf_data):
         
         final_filter = all_filters[0]
 
-    else:
+    elif use_all_filters:
         
         final_filter = [sum([v[i] for v in all_filters]) == len(all_filters) for i in range(len(vcf_data))]
+    
+    else:
+        
+        final_filter = [sum([v[i] for v in all_filters]) > 0 for i in range(len(vcf_data))]
 
     # Filter vcf data
     vcf_data_filtered = ['\t'.join(v) for v,f in zip(vcf_data, final_filter) if f]
