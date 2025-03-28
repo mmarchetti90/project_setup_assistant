@@ -251,7 +251,7 @@ class enrichment_analysis:
                 print(f'Processed {n + 1} / {len(good_categories)} categories', end='\r')
             
             # Get genes in the category in gene_list and the universe
-            category_genes = np.unique(term2gene.gene_symbol[term2gene.category == category].values)
+            category_genes = np.unique(term2gene.gene_symbol[term2gene.category == category].values.astype(str))
             list_hits = '/'.join(category_genes[np.isin(category_genes, self.gene_list)])
             list_hits_num = np.isin(category_genes, self.gene_list).sum()
             universe_hits_num = len(category_genes)

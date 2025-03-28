@@ -313,6 +313,11 @@
             "main_tag": "term_enrichment",
             "secondary_tag": "ora"
         },
+        "download_gsea_hallmark_genes.py": {
+            "path": "term_enrichment/preprocessing/download_gsea_hallmark_genes.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "preprocessing"
+        },
         "prep_annotations.py": {
             "path": "term_enrichment/preprocessing/prep_annotations.py",
             "main_tag": "term_enrichment",
