@@ -36,8 +36,19 @@ parseArgs <- function() {
     pval <- 0.05
     
   }
+
+  # Whether to use all genes or only the significant
+  if("--significant_only" %in% args) {
+
+    significant_only <- TRUE
+
+  } else {
+
+    significant_only <- FALSE
+
+  }
   
-  return(c(dea_path, term2gene_path, log2fc, pval))
+  return(c(dea_path, term2gene_path, log2fc, pval, significant_only))
   
 }
 
@@ -47,7 +58,20 @@ importDEA <- function(params) {
   
   dea <- read.delim(as.character(params[1]), header = TRUE, row.names = 1, sep = "\t")
   
-  dea <- subset(dea, abs(dea$log2FoldChange) >= as.numeric(params[3]) & dea$padj < as.numeric(params[4]))
+  dea[is.na(dea$padj), "padj"] <- 1
+  
+  if(params[5] == TRUE) {
+    
+    dea <- subset(dea, abs(dea$log2FoldChange) >= as.numeric(params[3]) & dea$padj < as.numeric(params[4]))
+    dea["rank"] <- dea$log2FoldChange
+    
+  } else {
+  
+    sign <- rep(1, nrow(dea))  
+    sign[dea$log2FoldChange < 0] <- -1
+    dea["rank"] <- sign * (- log10(dea$padj))
+    
+  }
   
   return(dea)
   
@@ -58,7 +82,7 @@ importDEA <- function(params) {
 runGSEA <- function(out, ds, t2g) {
   
   # Creating gene list
-  gene_list <- ds$log2FoldChange
+  gene_list <- ds$rank
   #names(gene_list) <- as.character(rownames(ds))
   names(gene_list) <- as.character(ds$gene_symbol)
   gene_list <- sort(gene_list, decreasing = TRUE)
@@ -95,7 +119,7 @@ runGSEA <- function(out, ds, t2g) {
     gsea_plot <- gseaplot2(enrichment, geneSetID = enrichment$ID[term_n], title = title_label, pvalue_table = FALSE, base_size = 15)
     #print(gsea_plot)
     #dev.off()
-    ggsave(file = out_fig, plot = gsea_plot, width = 15, height = 5, units="in", device="pdf", dpi=300)
+    ggsave(file = out_fig, plot = gsea_plot, width = 15, height = 10, units="in", device="pdf", dpi=300)
     
   }
   
