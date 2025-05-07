@@ -86,7 +86,7 @@ def parse_vars_data_json(dt, spliceai):
         
         data_parsed['variant'].append(dt['input'])
         data_parsed['gene_id'].append(v['gene_id'])
-        data_parsed['gene_symbol'].append(v['gene_symbol'])
+        data_parsed['gene_symbol'].append(v['gene_symbol'] if 'gene_symbol' in v.keys() else '')
         data_parsed['transcript_id'].append(v['transcript_id'])
         data_parsed['biotype'].append(v['biotype'])
         data_parsed['impact'].append(v['impact'])

@@ -55,10 +55,10 @@ def print_help():
         If False, enrichment will be tested with all genes only.
         Default = True
     --enrichment_only : optional
-       If specified, only enrichemnt will be tested.
+       If specified, categories will only be tested for enrichment (i.e. categories with less hits than expected will have p = 1).
        Mutually exclusive with --depletion_only.
     --depletion_only : optional
-       If specified, only depletion will be tested.
+       If specified, categories will only be tested for depletion (i.e. categories with more hits than expected will have p = 1).
        Mutually exclusive with --enrichment_only.
     """
 
@@ -299,14 +299,14 @@ class enrichment_analysis:
             expected_hits = round(list_size * (universe_hits_num / universe_size), 0)
             enrichment_score = np.log2((list_hits_num / list_size) / (universe_hits_num / universe_size))
             
+            # Behaviour
+            behaviour = 'enrichment' if list_hits_num >= expected_hits else 'depletion'
+            
             # Testing enrichment/depletion
             if (list_hits_num >= expected_hits and enrichment_type == 'both') or (enrichment_type == 'enrichment'):
                 
-                # Enrichment
-                behaviour = 'enrichment'
-                
                 # Hypergeometric test
-                # This was added for flavor, it's essentially the same as above
+                # This was added for flavor, it's essentially the same as below
                 #pval = self.hypergeom_testing(list_hits_num, list_size, universe_hits_num, universe_size)
                 
                 # Fisher's exact test
@@ -314,11 +314,8 @@ class enrichment_analysis:
             
             else:
                 
-                # Depletion
-                behaviour = 'depletion'
-                
                 # Hypergeometric test
-                # This was added for flavor, it's essentially the same as above
+                # This was added for flavor, it's essentially the same as below
                 #pval = self.hypergeom_testing(list_size - list_hits_num, list_size, universe_size - universe_hits_num, universe_size)
                 
                 # Fisher's exact test
