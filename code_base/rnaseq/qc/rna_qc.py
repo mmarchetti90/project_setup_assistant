@@ -191,7 +191,8 @@ def run_correlation(cnts):
                 
                 continue
             
-            correlation, pval = pearsonr(cnts.iloc[:, a], cnts.iloc[:, b])
+            #correlation, pval = pearsonr(cnts.iloc[:, a], cnts.iloc[:, b])
+            correlation, pval = spearmanr(cnts.iloc[:, a], cnts.iloc[:, b])
             
             plot_data.iloc[a, b] = correlation
             plot_data.iloc[b, a] = correlation
@@ -231,7 +232,7 @@ import pandas as pd
 import seaborn as sns
 
 from matplotlib import pyplot as plt
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from sklearn.decomposition import PCA
 from sys import argv
 
