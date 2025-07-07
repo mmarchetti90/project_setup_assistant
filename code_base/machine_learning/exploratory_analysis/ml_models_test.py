@@ -10,10 +10,12 @@ data
     Tab-separated table of shape N * (M + 1), where N is the number of samples and M are the
     variables to be used for prediction.
     The first column should be unique sample identifiers.
+    The first row should be a header.
 
 labels
     Tab-delimited file with two columns: samples IDs (matching the data table) and labels for
     predictions.
+    Expected to NOT have a header row.
 """
 
 ### ---------------------------------------- ###
@@ -27,6 +29,11 @@ def parse_args():
     ### Labels
     labels_file = argv[argv.index('--labels') + 1]
     labels = pd.read_csv(labels_file, sep='\t', index_col=0, header=None)
+    
+    ### Sanity check
+    good_samples = data.index.values[data.index.isin(labels.index.values)]
+    data = data.loc[good_samples,]
+    labels = labels.loc[good_samples,]
 
     ### Rename labels
     unique_labels = {l : i for i,l in enumerate(np.unique(labels.values))}

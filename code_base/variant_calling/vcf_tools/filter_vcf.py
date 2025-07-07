@@ -347,7 +347,7 @@ if len(vcf_data):
     all_filters.append(depth_filter)
 
     # Extreme quality filter
-    qual_filter = depth_outlier_filter(vcf_columns, vcf_data, qual_filter_toggle)
+    qual_filter = qual_outlier_filter(vcf_columns, vcf_data, qual_filter_toggle)
     all_filters.append(qual_filter)
 
     # Process individual filters

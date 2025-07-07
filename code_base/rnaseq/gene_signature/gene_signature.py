@@ -210,7 +210,7 @@ gene_counts, gene_list, gene_list_name, sample_info = parse_args()
 # Remove genes not detected in any sample
 gene_counts = gene_counts.loc[gene_counts.iloc[:, 2:].sum(axis=1) != 0, ]
 
-# Normalization (PDlog1pPF)
+# Normalization (PFlog1pPF)
 norm_counts = normalize_counts(gene_counts)
 
 # Scale data
