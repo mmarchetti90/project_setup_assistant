@@ -12,7 +12,6 @@ def split_data(y: np.ndarray, n_splits: int=10, label_batch_size: int=5, shuffle
     KFold-like split for unbalanced labels.
     Will make sure that the same number of samples are used for all labels and that all data is
     used at least once.
-    Works by STUB
     
     Parameters
     ----------
@@ -86,15 +85,15 @@ def split_data(y: np.ndarray, n_splits: int=10, label_batch_size: int=5, shuffle
     
     validation_splits = []
     
-    for snum in range(n_splits):
+    for t in train_splits:
         
-        # Choose random split to serve as validation set
+        val = []
         
-        val_s = np.random.choice([s for s in range(n_splits) if s not in validation_splits + [snum]], size=1)[0]
-        
-        validation_splits.append(val_s)
-        
-    validation_splits = [splits[vs] for vs in validation_splits]
+        for l,i in idx.items():
+            
+            val.extend(np.random.choice(i[~ np.isin(i, t)], size=label_batch_size, replace=False))
+    
+        validation_splits.append(val)
     
     return train_splits, validation_splits
 
