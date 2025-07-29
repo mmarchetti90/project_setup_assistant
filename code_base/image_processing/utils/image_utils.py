@@ -21,26 +21,8 @@ def threshold_movie(movie, output_prefix='sample'):
     thresholds = []
     for t,m in enumerate(movie):
         
-        # Get profile along several axes
-        ax_1 = m[m.shape[0] // 2,]
-        ax_2 = m[:, m.shape[1] // 2]
-        ax_3_pnts = get_points_in_between(np.array([0, 0]), np.array(m.shape) - 1)
-        ax_3 = m[ax_3_pnts[:,0], ax_3_pnts[:,1]]
-        ax_4_pnts = get_points_in_between(np.array([m.shape[0] - 1, 0]), np.array([0, m.shape[1]]) - 1)
-        ax_4 = m[ax_4_pnts[:,0], ax_4_pnts[:,1]]
+        threshold = threshold_frame(m)
         
-        # Concatenate
-        ax = np.concatenate([ax_1, ax_2, ax_3, ax_4])
-        
-        # Smoothing
-        averaging_window = 10
-        _, ax = running_average(ax, averaging_window)
-        
-        # Sorting
-        ax = np.sort(ax)[::-1]
-        
-        # Kneedle on ax
-        _, threshold = kneedle(ax)
         thresholds.append(threshold)
     
     # Running average
@@ -50,6 +32,40 @@ def threshold_movie(movie, output_prefix='sample'):
     save_threshold_diagnostics(thresholds, f'{output_prefix}_thresholds')
     
     return thresholds
+
+### ---------------------------------------- ###
+
+def threshold_frame(frame):
+
+    """
+    Measures intensities along the 4 axis of the image, then pools the measurements, sorts them, and
+    uses a Kneedle approach to find an optimal threshold.
+    """
+
+    print('Thresholding')
+
+    # Get profile along several axes
+    ax_1 = frame[frame.shape[0] // 2,]
+    ax_2 = frame[:, frame.shape[1] // 2]
+    ax_3_pnts = get_points_in_between(np.array([0, 0]), np.array(frame.shape) - 1)
+    ax_3 = frame[ax_3_pnts[:,0], ax_3_pnts[:,1]]
+    ax_4_pnts = get_points_in_between(np.array([frame.shape[0] - 1, 0]), np.array([0, frame.shape[1]]) - 1)
+    ax_4 = frame[ax_4_pnts[:,0], ax_4_pnts[:,1]]
+    
+    # Concatenate
+    ax = np.concatenate([ax_1, ax_2, ax_3, ax_4])
+    
+    # Smoothing
+    averaging_window = 10
+    _, ax = running_average(ax, averaging_window)
+    
+    # Sorting
+    ax = np.sort(ax)[::-1]
+    
+    # Kneedle on ax
+    _, threshold = kneedle(ax)
+    
+    return threshold
 
 ### ---------------------------------------- ###
 
@@ -76,7 +92,7 @@ def save_threshold_diagnostics(thrs, prefix='threshold'):
 ### MOVIE MASKING                            ###
 ### ---------------------------------------- ###
 
-def mask_movie(movie, thresholds, output_prefix='sample'):
+def mask_movie(movie, thresholds, size_filter=True, min_size=100, output_prefix='sample'):
 
     print('Masking')
 
@@ -95,7 +111,7 @@ def mask_movie(movie, thresholds, output_prefix='sample'):
         labels_areas.sort(key=lambda x: x[1], reverse=True)
     
         # Filter ojects by size
-        if labels_num > 5:
+        if labels_num > 5 and size_filter:
     
             index, _ = kneedle([la[1] for la in labels_areas])
     
@@ -103,7 +119,7 @@ def mask_movie(movie, thresholds, output_prefix='sample'):
         
             index = labels_num
         
-        good_labels = [la[0] for la in labels_areas[:index] if la[1] > 2500]
+        good_labels = [la[0] for la in labels_areas[:index] if la[1] > min_size]
     
         # Redefine mask
         mask = np.ones(m.shape)

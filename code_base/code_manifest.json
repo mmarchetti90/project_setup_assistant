@@ -373,6 +373,11 @@
             "main_tag": "utils",
             "secondary_tag": "general_utils"
         },
+        "differential_analysis_tools.py": {
+            "path": "utils/genomic_utils/differential_analysis_tools.py",
+            "main_tag": "utils",
+            "secondary_tag": "genomic_utils"
+        },
         "fix_fastq_pair.sh": {
             "path": "utils/genomic_utils/fix_fastq_pair.sh",
             "main_tag": "utils",
