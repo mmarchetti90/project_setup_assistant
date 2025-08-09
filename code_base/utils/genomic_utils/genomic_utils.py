@@ -32,15 +32,15 @@ def load_fasta(path):
 
 def structure_fasta(seq, seq_name='Seq', line_chars=80):
         
-        fasta = [f'>{seq_name}']
+    fasta = [f'>{seq_name}']
         
-        for i in range(0, len(seq), line_chars):
+    for i in range(0, len(seq), line_chars):
             
-            fasta.append(seq[i : i + line_chars])
+        fasta.append(seq[i : i + line_chars])
         
-        fasta = '\n'.join(fasta)
+    fasta = '\n'.join(fasta)
         
-        return fasta
+    return fasta
 
 ### ---------------------------------------- ###
 

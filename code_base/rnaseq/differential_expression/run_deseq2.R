@@ -1,7 +1,7 @@
 #!/usr/bin/Rscript
 
 # This script runs DESeq2 using information read in from Comparison files
-# N.B. This is designed for simple binary comparisons as described in a comparison design file in the column "condition" and field "reference"
+# N.B. Can run both Wald or LRT
 
 ### ---------------------------------------- ###
 
@@ -21,33 +21,69 @@ parseArgs <- function() {
 
 	# Adjusted p value threshold
 	pval <- args[match("--p_thr", args) + 1]
+	
+	# DESeq2 mode, i.e. Wald test or LRT
+	if("--mode" %in% args) {
+	  
+	  run_mode <- args[match("--mode", args) + 1]
+	  
+	} else {
+	  
+	  mode <- "wald"
+	  
+	}
 
-	return(c(counts_file, design_file, min_reads, pval))
+	return(c(counts_file, design_file, min_reads, pval, mode))
 
 }
 
 ### ---------------------------------------- ###
 
-importDesign <- function(design_file) {
+importDesign <- function(design_file, design_type) {
 
 	# Reading design file
 	temp <- read.delim(design_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-
-	# Extracting analysis name
-	analysis_name <- as.character(temp[1, 2])
-
-	# Extracting comparison formula
-	condition <- as.formula(temp[2, 2])
-
-	# Extracting reference
-	reference <- as.character(temp[3, 2])
-
-	# Generating sample_info dataframe
-	sample_info <- as.data.frame(temp[5 : nrow(temp), 2 : ncol(temp)], stringsAsFactors = TRUE)
-	rownames(sample_info) <- temp[5 : nrow(temp), 1]
-	colnames(sample_info) <- temp[4, 2 : ncol(temp)]
-
-	return(list("analysis_name" = analysis_name, "formula" = condition, "reference" = reference, "sample_info" = sample_info))
+	
+	if(design_type == "wald") {
+	  
+	  # Extracting analysis name
+	  analysis_name <- as.character(temp[1, 2])
+	  
+	  # Extracting comparison formula
+	  condition <- as.formula(temp[2, 2])
+	  
+	  # Extracting reference
+	  reference <- as.character(temp[3, 2])
+	  
+	  # Generating sample_info dataframe
+	  sample_info <- as.data.frame(temp[5 : nrow(temp), 2 : ncol(temp)], stringsAsFactors = TRUE)
+	  rownames(sample_info) <- temp[5 : nrow(temp), 1]
+	  colnames(sample_info) <- temp[4, 2 : ncol(temp)]
+	  
+	  return(list("analysis_name" = analysis_name, "full_model" = condition, "reference" = reference, "sample_info" = sample_info))
+	  
+	} else {
+	  
+	  # Extracting analysis name
+	  analysis_name <- as.character(temp[1, 2])
+	  
+	  # Extracting full model formula
+	  full_model <- as.formula(temp[2, 2])
+	  
+	  # Extracting reduced model formula
+	  reduced_model <- as.formula(temp[3, 2])
+	  
+	  # Extracting reference
+	  reference <- as.character(temp[4, 2])
+	  
+	  # Generating sample_info dataframe
+	  sample_info <- as.data.frame(temp[6 : nrow(temp), 2 : ncol(temp)], stringsAsFactors = TRUE)
+	  rownames(sample_info) <- temp[6 : nrow(temp), 1]
+	  colnames(sample_info) <- temp[5, 2 : ncol(temp)]
+	  
+	  return(list("analysis_name" = analysis_name, "full_model" = full_model, "reduced_model" = reduced_model, "reference" = reference, "sample_info" = sample_info))
+	  
+	}
 
 }
 
@@ -56,13 +92,13 @@ importDesign <- function(design_file) {
 runDEA <- function(params, cnts, des) {
 
 	# Removing samples from design not in counts table
-    des$sample_info <- subset(des$sample_info, rownames(des$sample_info) %in% colnames(cnts))
+  des$sample_info <- subset(des$sample_info, rownames(des$sample_info) %in% colnames(cnts))
   	
 	# Filtering and ordering counts samples
 	cnts <- cnts[, rownames(des$sample_info)]
 
 	# Creating a DESeq2 data matrix
-	dds <- DESeqDataSetFromMatrix(countData = cnts, colData = des$sample_info, design = des$formula)
+	dds <- DESeqDataSetFromMatrix(countData = cnts, colData = des$sample_info, design = des$full_model)
 
 	# Filtering out genes with too few reads in more than half the samples
 	dds <- dds[rowSums(counts(dds) >= as.integer(params[3])) >= ncol(dds) / 2,]
@@ -84,15 +120,27 @@ runDEA <- function(params, cnts, des) {
 	dds[[comparison_parameter]] <- droplevels(dds[[comparison_parameter]])
 
 	# Differential expression analysis
-	dds <- DESeq(dds, parallel = T)
+	if(params[5] == "wald") {
+	  
+	  dds <- DESeq(dds, test = "Wald", parallel = T)
+	  
+	  contrast <- c(comparison_parameter, rev(levels(dds[[comparison_parameter]])))
+	  analysis <- results(dds, alpha = as.numeric(params[4]), contrast = contrast)
+	  #analysis <- lfcShrink(dds, contrast = contrast, res = analysis, type = 'ashr')
+	  
+	} else {
+	  
+	  dds <- DESeq(dds, test = "LRT", reduced = des$reduced_model, parallel = T)
+	  
+	  analysis <- results(dds, alpha = as.numeric(params[4]))
+	  #analysis <- lfcShrink(dds, contrast = contrast, res = analysis, type = 'ashr')
+	  
+	}
 	
-	# Save RDS object
-	saveRDS(dds, file = paste("DEA_", des$analysis_name, ".rds", sep = ""))
+	# Save RDS object and results table
+	output_name <- paste("DEA_", des$analysis_name, ".rds", sep = "")
+	saveRDS(dds, file = output_name)
 
-	# Differential expression analysis
-	contrast <- c(comparison_parameter, rev(levels(dds[[comparison_parameter]])))
-	analysis <- results(dds, alpha = as.numeric(params[4]), contrast = contrast)
-	#analysis <- lfcShrink(dds, contrast = contrast, res = analysis, type = 'ashr')
 	output_name <- paste("DEA_", des$analysis_name, ".tsv", sep = "")
 	write.table(analysis, output_name, sep = "\t")
 
@@ -177,11 +225,12 @@ library(ggplot2)
 library(RColorBrewer)
 library(pheatmap)
 
+# Read command line parameters
 parameters <- parseArgs()
 
 # Import counts and experimental design
 counts <- read.delim(as.character(parameters[1]), header = TRUE, row.names = 1, sep = "\t", check.names = FALSE)
-design <- importDesign(as.character(parameters[2]))
+design <- importDesign(as.character(parameters[2]), parameters[5])
 
 # Running DESeq2
 runDEA(parameters, counts, design)
