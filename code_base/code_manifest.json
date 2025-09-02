@@ -438,6 +438,11 @@
             "main_tag": "variant_calling",
             "secondary_tag": "vep"
         },
+        "cytoarray_baf_and_lrr_plots.py": {
+            "path": "visualizations/cnv/cytoarray_baf_and_lrr_plots.py",
+            "main_tag": "visualizations",
+            "secondary_tag": "cnv"
+        },
         "rlog_pheatmap.R": {
             "path": "visualizations/differential_expression/rlog_pheatmap.R",
             "main_tag": "visualizations",

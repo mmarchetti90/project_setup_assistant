@@ -145,6 +145,10 @@ def scale_features(raw_dt):
 
 def reduce_dimensions(dt, pca_model_path='', umap_model_path='', pca_components=50, neighbors=30):
     
+    if pca_components > dt.shape[1]:
+
+        pca_components = dt.shape[1]
+    
     # Scale data
     dt_scaled = scale_features(dt)
     
@@ -347,7 +351,7 @@ from sys import argv
 
 ### Parse args
 
-k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path = parse_args()
+k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle = parse_args()
 
 ### Parse reports
 

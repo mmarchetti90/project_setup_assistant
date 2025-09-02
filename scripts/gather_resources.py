@@ -163,7 +163,7 @@ classification = zeroshot(notes, candidate_labels=candidate_labels)
 
 threshold = 0.25
 
-hit_labels = list(set([label for label,score in zip(classification['labels'], classification['scores']) if score >= threshold]))
+hit_labels = list(set([label.replace(' ', '_') for label,score in zip(classification['labels'], classification['scores']) if score >= threshold]))
 
 ### Refinement via user input
 
