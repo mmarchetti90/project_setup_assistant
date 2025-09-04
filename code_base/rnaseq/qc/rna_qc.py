@@ -417,12 +417,46 @@ else:
 
     sample_info_files = []
 
+### Number of detected genes
+
+if '--min_counts' in argv:
+
+    min_counts = int(argv[argv.index('--min_counts') + 1])
+
+else:
+
+    min_counts = 10
+
+detected_genes = (counts > min_counts).sum(axis=0).reset_index(drop=False)
+
+detected_genes.columns = ['sample', 'detected_genes']
+
+detected_genes.loc[:, 'tot_sample_reads'] = counts.sum(axis=0).values
+
+detected_genes.to_csv('detected_genes.tsv', sep='\t', index=False, header=True)
+
+# Plot relation between tot_sample_reads, detected_genes
+
+plot_data = np.log10(detected_genes[['tot_sample_reads', 'detected_genes']])
+
+slope, intercept = np.polyfit(plot_data['tot_sample_reads'], plot_data['detected_genes'], 1)
+trendline_x = plot_data['tot_sample_reads'].values
+trendline_y_fun = np.poly1d((slope, intercept))
+r, p = spearmanr(plot_data['tot_sample_reads'], plot_data['detected_genes'])
+
+plot_data.plot(kind='scatter', x='tot_sample_reads', y='detected_genes', loglog=False, figsize=(5.1, 5))
+plt.plot(trendline_x, trendline_y_fun(trendline_x), color='red', linestyle='--', label='Trendline')
+plt.title(f'r = {r:.3f}\np = {p:.3e}', loc='left')
+plt.xlabel('log$_{10}$(Sample reads)')
+plt.ylabel('log$_{10}$(Detected genes)')
+plt.savefig('detected_genes.png', bbox_inches='tight', dpi=600)
+plt.close()
 
 ### Normalizing counts
 
 print('Normalizing counts')
 
-norm_counts = counts.loc[(counts > 10).sum(axis=1) >= 3,]
+norm_counts = counts.loc[(counts > min_counts).sum(axis=1) >= 3,]
 
 norm_counts = normalize_counts(norm_counts)
 

@@ -128,6 +128,16 @@
             "main_tag": "metagenomics",
             "secondary_tag": "multiple_alignment"
         },
+        "explore_taxonomy_hierarchy.py": {
+            "path": "metagenomics/taxonomy_db/explore_taxonomy_hierarchy.py",
+            "main_tag": "metagenomics",
+            "secondary_tag": "taxonomy_db"
+        },
+        "prepare_taxonomy_db.py": {
+            "path": "metagenomics/taxonomy_db/prepare_taxonomy_db.py",
+            "main_tag": "metagenomics",
+            "secondary_tag": "taxonomy_db"
+        },
         "shannon_index.py": {
             "path": "metagenomics/utils/shannon_index.py",
             "main_tag": "metagenomics",
@@ -367,6 +377,11 @@
             "path": "utils/counts_table_merge/merge_met_cov.py",
             "main_tag": "utils",
             "secondary_tag": "counts_table_merge"
+        },
+        "hierarchy_explorer.py": {
+            "path": "utils/general_utils/hierarchy_explorer.py",
+            "main_tag": "utils",
+            "secondary_tag": "general_utils"
         },
         "various_utils.py": {
             "path": "utils/general_utils/various_utils.py",
