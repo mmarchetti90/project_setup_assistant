@@ -117,6 +117,7 @@ def parse_vars_data_json(dt, spliceai):
 ### ------------------MAIN------------------ ###
 
 import json
+import numpy as np
 import pandas as pd
 import requests
 
@@ -184,3 +185,78 @@ with open(f'{output_prefix}_vep.json', 'w') as json_out:
 vars_tsv = pd.concat(vars_tsv)
 
 vars_tsv.to_csv(f'{output_prefix}_vep.tsv', sep='\t', index=False, header=True)
+
+### Summarize variants by most severe effect
+
+# See hierarchy here: https://useast.ensembl.org/info/genome/variation/prediction/predicted_data.html
+
+vep_effect_hierarchy = [
+    'transcript_ablation',
+    'splice_acceptor_variant',
+    'splice_donor_variant',
+    'stop_gained',
+    'frameshift_variant',
+    'stop_lost',
+    'start_lost',
+    'transcript_amplification',
+    'feature_elongation',
+    'feature_truncation',
+    'inframe_insertion',
+    'inframe_deletion',
+    'missense_variant',
+    'protein_altering_variant',
+    'splice_donor_5th_base_variant',
+    'splice_region_variant',
+    'splice_donor_region_variant',
+    'splice_polypyrimidine_tract_variant',
+    'incomplete_terminal_codon_variant',
+    'start_retained_variant',
+    'stop_retained_variant',
+    'synonymous_variant',
+    'coding_sequence_variant',
+    'mature_miRNA_variant',
+    '5_prime_UTR_variant',
+    '3_prime_UTR_variant',
+    'non_coding_transcript_exon_variant',
+    'intron_variant',
+    'NMD_transcript_variant',
+    'non_coding_transcript_variant',
+    'coding_transcript_variant',
+    'upstream_gene_variant',
+    'downstream_gene_variant',
+    'TFBS_ablation',
+    'TFBS_amplification',
+    'TF_binding_site_variant',
+    'regulatory_region_ablation',
+    'regulatory_region_amplification',
+    'regulatory_region_variant',
+    'intergenic_variant',
+    'sequence_variant'
+]
+
+most_severe_effects = []
+most_severe_effects_header = ['variant', 'gene_id', 'gene_symbol', 'effect']
+
+for var in np.unique(vars_tsv['variant'].values):
+    
+    vars_sub = vars_tsv.loc[vars_tsv['variant'] == var,]
+    
+    affected_genes = np.unique(vars_sub['gene_id'].values)
+    
+    for gene_id in affected_genes:
+        
+        vars_sub_sub = vars_sub.loc[vars_sub['gene_id'] == gene_id,]
+        
+        gene_symbol = vars_sub_sub['gene_symbol'].values[0]
+    
+        effects = [(c, vep_effect_hierarchy.index(c)) for consequence in vars_sub_sub['consequence_terms'] for c in consequence.split(',')]
+
+        effects.sort(key=lambda c: c[1])
+        
+        most_severe = effects[0][0]
+        
+        most_severe_effects.append([var, gene_id, gene_symbol, most_severe])
+
+most_severe_effects = pd.DataFrame(most_severe_effects, columns=most_severe_effects_header)
+
+most_severe_effects.to_csv(f'{output_prefix}_vep_most_severe_effects.tsv', sep='\t', index=False, header=True)
