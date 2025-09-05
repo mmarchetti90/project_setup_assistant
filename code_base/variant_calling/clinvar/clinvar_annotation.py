@@ -90,6 +90,12 @@ def make_hgvs_notation(r, a, p, cntg):
         deletion = r[len(a):]
         hgvs_notation = f'{cntg}:g.{deletion_start}_{deletion_end}del{deletion}'
     
+    elif len(r) == len(a):
+        
+        hgvs_notation = [f'{cntg}:g.{p+n}{ref_base}>{alt_base}' for n,(ref_base,alt_base) in enumerate(zip(r,a)) if ref_base != alt_base and alt_base in 'ACGT']
+        
+        hgvs_notation = hgvs_notation[0] if len(hgvs_notation) else ''
+    
     else:
         
         hgvs_notation = ''
@@ -98,9 +104,7 @@ def make_hgvs_notation(r, a, p, cntg):
 
 ### ------------------MAIN------------------ ###
 
-import numpy as np
 import pandas as pd
-import requests
 
 from sys import argv
 
@@ -141,7 +145,7 @@ for _,(contig, pos, _, ref, alt, *_) in target_vcf_data.iterrows():
             
             associated_disease = 'unknown'
 
-    vars_annotation.append([hgvs_notation, contig, pos, ref, alt, affected_genes, clinical_significance, associated_disease])
+        vars_annotation.append([hgvs_notation, contig, pos, ref, alt, affected_genes, clinical_significance, associated_disease])
 
 vars_annotation = pd.DataFrame(vars_annotation, columns=vars_annotation_header)
 

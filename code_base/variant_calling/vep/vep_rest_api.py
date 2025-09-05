@@ -38,6 +38,10 @@ def parse_args():
 
 def make_hgvs_notation(r, a, p, cntg):
     
+    if not cntg.startswith('chr'):
+        
+        cntg = f'chr{cntg}'
+    
     if len(r) == 1 and len(a) == 1:
         
         # Single base substitution
@@ -58,6 +62,12 @@ def make_hgvs_notation(r, a, p, cntg):
         deletion_end = p + len(r) - 1
         deletion = r[len(a):]
         hgvs_notation = f'{cntg}:g.{deletion_start}_{deletion_end}del{deletion}'
+    
+    elif len(r) == len(a):
+        
+        hgvs_notation = [f'{cntg}:g.{p+n}{ref_base}>{alt_base}' for n,(ref_base,alt_base) in enumerate(zip(r,a)) if ref_base != alt_base and alt_base in 'ACGT']
+        
+        hgvs_notation = hgvs_notation[0] if len(hgvs_notation) else ''
     
     else:
         
