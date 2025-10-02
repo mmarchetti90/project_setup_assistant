@@ -29,11 +29,11 @@ parseArgs <- function() {
 	  
 	} else {
 	  
-	  mode <- "wald"
+	  run_mode <- "wald"
 	  
 	}
 
-	return(c(counts_file, design_file, min_reads, pval, mode))
+	return(c(counts_file, design_file, min_reads, pval, run_mode))
 
 }
 

@@ -87,35 +87,89 @@ def parse_vars_data_json(dt, spliceai):
                                'biotype',
                                'impact',
                                'consequence_terms',
+                               'lowest_frequency',
                                'DS_AG',
                                'DS_AL',
                                'DS_DG',
                                'DS_DL']}
     
-    for v in dt['transcript_consequences']:
+    # Get allele frequency
+    
+    if 'colocated_variants' in dt.keys():
+    
+        best_f = 1
+        
+        for colocated in dt['colocated_variants']:
+            
+            if not 'frequencies' in colocated.keys():
+                
+                continue
+            
+            for frequencies in colocated['frequencies'].values():
+                
+                if 'amr' in frequencies.keys() or 'gnomade_amr' in frequencies.keys():
+                    
+                    f = min([frequencies[key] for key in ['amr', 'gnomade_amr'] if key in frequencies.keys()])
+                
+                else:
+                
+                    f = min(frequencies.values())
+                
+                if f < best_f:
+                    
+                    best_f = f
+            
+        best_f = str(best_f)
+    
+    else:
+        
+        best_f = 'unknown'
+    
+    # Parse effects
+    
+    if 'transcript_consequences' in dt.keys():
+    
+        for v in dt['transcript_consequences']:
+            
+            data_parsed['variant'].append(dt['input'])
+            data_parsed['gene_id'].append(v['gene_id'])
+            data_parsed['gene_symbol'].append(v['gene_symbol'] if 'gene_symbol' in v.keys() else '')
+            data_parsed['transcript_id'].append(v['transcript_id'])
+            data_parsed['biotype'].append(v['biotype'])
+            data_parsed['impact'].append(v['impact'])
+            data_parsed['consequence_terms'].append(','.join(v['consequence_terms']))
+            data_parsed['lowest_frequency'].append(best_f)
+            
+            if 'spliceai' in v.keys():
+                
+                data_parsed['DS_AG'].append(v['spliceai']['DS_AG'])
+                data_parsed['DS_AL'].append(v['spliceai']['DS_AL'])
+                data_parsed['DS_DG'].append(v['spliceai']['DS_DG'])
+                data_parsed['DS_DL'].append(v['spliceai']['DS_DL'])
+            
+            else:
+                
+                data_parsed['DS_AG'].append('')
+                data_parsed['DS_AL'].append('')
+                data_parsed['DS_DG'].append('')
+                data_parsed['DS_DL'].append('')
+    
+    else:
         
         data_parsed['variant'].append(dt['input'])
-        data_parsed['gene_id'].append(v['gene_id'])
-        data_parsed['gene_symbol'].append(v['gene_symbol'] if 'gene_symbol' in v.keys() else '')
-        data_parsed['transcript_id'].append(v['transcript_id'])
-        data_parsed['biotype'].append(v['biotype'])
-        data_parsed['impact'].append(v['impact'])
-        data_parsed['consequence_terms'].append(','.join(v['consequence_terms']))
+        data_parsed['gene_id'].append('')
+        data_parsed['gene_symbol'].append('')
+        data_parsed['transcript_id'].append('')
+        data_parsed['biotype'].append('')
+        data_parsed['impact'].append('')
+        data_parsed['consequence_terms'].append(dt['most_severe_consequence'] if 'most_severe_consequence' in dt.keys() else '')
+        data_parsed['lowest_frequency'].append('unknown')
         
-        if 'spliceai' in v.keys():
-            
-            data_parsed['DS_AG'].append(v['spliceai']['DS_AG'])
-            data_parsed['DS_AL'].append(v['spliceai']['DS_AL'])
-            data_parsed['DS_DG'].append(v['spliceai']['DS_DG'])
-            data_parsed['DS_DL'].append(v['spliceai']['DS_DL'])
+        data_parsed['DS_AG'].append('')
+        data_parsed['DS_AL'].append('')
+        data_parsed['DS_DG'].append('')
+        data_parsed['DS_DL'].append('')
         
-        else:
-            
-            data_parsed['DS_AG'].append('')
-            data_parsed['DS_AL'].append('')
-            data_parsed['DS_DG'].append('')
-            data_parsed['DS_DL'].append('')
-    
     data_parsed = pd.DataFrame(data_parsed)
     
     if not spliceai:
@@ -245,7 +299,7 @@ vep_effect_hierarchy = [
 ]
 
 most_severe_effects = []
-most_severe_effects_header = ['variant', 'gene_id', 'gene_symbol', 'effect']
+most_severe_effects_header = ['variant', 'gene_id', 'gene_symbol', 'biotype', 'impact', 'effect', 'lowest_frequency']
 
 for var in np.unique(vars_tsv['variant'].values):
     
@@ -258,14 +312,18 @@ for var in np.unique(vars_tsv['variant'].values):
         vars_sub_sub = vars_sub.loc[vars_sub['gene_id'] == gene_id,]
         
         gene_symbol = vars_sub_sub['gene_symbol'].values[0]
-    
-        effects = [(c, vep_effect_hierarchy.index(c)) for consequence in vars_sub_sub['consequence_terms'] for c in consequence.split(',')]
 
+        biotype = vars_sub_sub['biotype'].values[0]
+        
+        lowest_frequency = vars_sub_sub['lowest_frequency'].values[0]
+        
+        effects = [(impact, c, vep_effect_hierarchy.index(c)) for _,(impact,consequence) in vars_sub_sub[['impact', 'consequence_terms']].iterrows() for c in consequence.split(',')]
+    
         effects.sort(key=lambda c: c[1])
+            
+        most_severe_impact, most_severe_effect = effects[0][:2]
         
-        most_severe = effects[0][0]
-        
-        most_severe_effects.append([var, gene_id, gene_symbol, most_severe])
+        most_severe_effects.append([var, gene_id, gene_symbol, biotype, most_severe_impact, most_severe_effect, lowest_frequency])
 
 most_severe_effects = pd.DataFrame(most_severe_effects, columns=most_severe_effects_header)
 

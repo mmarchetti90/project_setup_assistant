@@ -193,6 +193,16 @@
             "main_tag": "motif_enrichment",
             "secondary_tag": "get_promoter_seqs"
         },
+        "run_homer_fasta.sh": {
+            "path": "motif_enrichment/homer/run_homer_fasta.sh",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "homer"
+        },
+        "run_homer_genes.sh": {
+            "path": "motif_enrichment/homer/run_homer_genes.sh",
+            "main_tag": "motif_enrichment",
+            "secondary_tag": "homer"
+        },
         "run_meme_fimo.sh": {
             "path": "motif_enrichment/meme_fimo/run_meme_fimo.sh",
             "main_tag": "motif_enrichment",
@@ -333,13 +343,23 @@
             "main_tag": "term_enrichment",
             "secondary_tag": "ora"
         },
+        "simplify_terms_stringent.py": {
+            "path": "term_enrichment/ora/simplify_terms_stringent.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "ora"
+        },
         "download_gsea_hallmark_genes.py": {
             "path": "term_enrichment/preprocessing/download_gsea_hallmark_genes.py",
             "main_tag": "term_enrichment",
             "secondary_tag": "preprocessing"
         },
-        "prep_annotations.py": {
-            "path": "term_enrichment/preprocessing/prep_annotations.py",
+        "download_reactome_genes.py": {
+            "path": "term_enrichment/preprocessing/download_reactome_genes.py",
+            "main_tag": "term_enrichment",
+            "secondary_tag": "preprocessing"
+        },
+        "prep_go_annotations.py": {
+            "path": "term_enrichment/preprocessing/prep_go_annotations.py",
             "main_tag": "term_enrichment",
             "secondary_tag": "preprocessing"
         },
@@ -377,6 +397,11 @@
             "path": "utils/counts_table_merge/merge_met_cov.py",
             "main_tag": "utils",
             "secondary_tag": "counts_table_merge"
+        },
+        "find_outliers_between_two_samples.py": {
+            "path": "utils/general_utils/find_outliers_between_two_samples.py",
+            "main_tag": "utils",
+            "secondary_tag": "general_utils"
         },
         "hierarchy_explorer.py": {
             "path": "utils/general_utils/hierarchy_explorer.py",

@@ -379,7 +379,7 @@ class enrichment_analysis:
         
         # Filter results
         data = self.results.copy()
-        data = data.loc[data.padj < p_thr,].iloc[:15,]
+        data = data.loc[data.padj < p_thr,].iloc[:max_categories,]
 
         # Change Inf and -Inf values
         vals = data.enrichment_score[data.enrichment_score.abs() != np.inf]

@@ -6,8 +6,8 @@
     "ignored_patters": [
         "*.ot",
         "*.h5",
-        "*.safetensors",
-        "*.msgpack"
+        "*.msgpack",
+        "*.bin"
     ],
     "code_dir_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/code_base",
     "code_manifest_path": "/Users/earthsea/Documents/hf_transformers_env/ai_assistant/code_base/code_manifest.json"
