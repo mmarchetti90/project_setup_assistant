@@ -10,9 +10,17 @@ Collection of useful functions
 
 def load_fasta(path):
     
+    if path.endswith('.gz'):
+        
+        chromosomes = gzip.open(path, 'r').read().decode().split('>')
+    
+    else:
+        
+        chromosomes = open(path, 'r').read().split('>')
+    
     fasta = {}
     
-    for chrom in open(path).read().split('>'):
+    for chrom in chromosomes:
         
         if not len(chrom):
             

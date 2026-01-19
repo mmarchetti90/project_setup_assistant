@@ -45,11 +45,11 @@ def parse_gtf(path, desired_biotypes=[], desired_chromosomes=[], analysis_level=
     # Load GTF
     
     gtf_data = pd.read_csv(path, sep='\t', header=None, comment='#', dtype=str)
-    gtf_data.columns = ['seqname', 'source', 'feature', 'start', 'end', 'score', 'strand', 'frame', 'attribute']
+    gtf_data.columns = ['chromosome', 'source', 'feature', 'start', 'end', 'score', 'strand', 'frame', 'attribute']
 
     ### Only keep genes and exons
 
-    gtf_data = gtf_data.loc[gtf_data.feature.isin(['gene', 'exon']), ['seqname', 'start', 'end', 'strand', 'attribute']]
+    gtf_data = gtf_data.loc[gtf_data.feature.isin(['gene', 'exon']), ['chromosome', 'start', 'end', 'strand', 'attribute']]
     
     # Get biotype and gene id
 
@@ -121,7 +121,7 @@ def parse_gtf(path, desired_biotypes=[], desired_chromosomes=[], analysis_level=
 
     if len(desired_chromosomes):
 
-        gtf_data = gtf_data.loc[gtf_data.seqname.isin(desired_chromosomes),]
+        gtf_data = gtf_data.loc[gtf_data.chromosome.isin(desired_chromosomes),]
     
     # Remove genes without gene_symbol
     
@@ -150,63 +150,52 @@ def parse_gtf(path, desired_biotypes=[], desired_chromosomes=[], analysis_level=
 
 def add_info(dea_data, gtf_data, analysis_level='gene'):
     
-    annotation_header = ['original_id', 'gene_id', 'gene_symbol', 'transcript_id', 'exon_id', 'chromosome', 'element_start', 'element_end', 'strand', 'biotype']
-    annotation = []
-    
-    for original_id in dea.index.values:
-        
-        if analysis_level == 'gene':
-            
-            gtf_data_sub = gtf_data.loc[(gtf_data.gene_id == original_id.split('.')[0]) | (gtf_data.gene_symbol == original_id.split('.')[0]),]
-            
-        elif analysis_level == 'transcript':
-            
-            gtf_data_sub = gtf_data.loc[gtf_data.transcript_id == original_id,]
-        
-        else:
-            
-            gtf_data_sub = gtf_data.loc[gtf_data.exon_id == original_id,]
-        
-        # Skip if element is not found in the filtered gtf (i.e. element is not in desired chromosomes or has an unwanted biotype)
-        if gtf_data_sub.shape[0] == 0:
-            
-            continue
-        
-        gene_id = gtf_data_sub['gene_id'].values[0]
-        gene_symbol = gtf_data_sub['gene_symbol'].values[0]
-        transcript_id = '' if analysis_level in ['gene'] else gtf_data_sub['transcript_id'].values[0]
-        exon_id = '' if analysis_level in ['gene', 'transcript'] else gtf_data_sub['transcript_id'].values[0]
-        chrom = gtf_data_sub['seqname'].values[0]
-        start = gtf_data_sub['start'].values.min()
-        end = gtf_data_sub['end'].values.max()
-        strand = gtf_data_sub['end'].values[0]
-        biotype = gtf_data_sub['biotype'].values[0]
-        
-        annotation.append([original_id, gene_id, gene_symbol, transcript_id, exon_id, chrom, start, end, strand, biotype])
-        
-    annotation = pd.DataFrame(annotation, columns=annotation_header)
-    
     if analysis_level == 'gene':
         
-        annotation.drop(['transcript_id', 'exon_id'], axis='columns', inplace=True)
-        annotation.drop_duplicates(inplace=True)
+        original_ids = [gid.split('.')[0] for gid in dea.index.values]
+        
+        id_type = ['gene_id', 'gene_symbol'][np.argmax(gtf_data.gene_id.isin(original_ids).sum(), gtf_data.gene_symbol.isin(original_ids).sum())]
+        
+        group_cols = ['chromosome', 'strand', 'biotype', 'gene_id', 'gene_symbol']
     
     elif analysis_level == 'transcript':
         
-        annotation.drop(['exon_id'], axis='columns', inplace=True)
-        annotation.drop_duplicates(inplace=True)
+        original_ids = dea.index.values.tolist()
+        
+        id_type = 'trascript_id'
+        
+        group_cols = ['chromosome', 'strand', 'biotype', 'gene_id', 'gene_symbol', 'transcript_id']
     
     else:
         
-        annotation.drop_duplicates(inplace=True)
+        original_ids = dea.index.values.tolist()
+        
+        id_type = 'exon_id'
+        
+        group_cols = ['chromosome', 'strand', 'biotype', 'gene_id', 'gene_symbol', 'transcript_id', 'exon_id']
     
-    dea_data = pd.merge(annotation, dea_data, how='inner', left_on='original_id', right_index=True)
-    dea_data.drop(['original_id'], axis='columns', inplace=True)
+    # Subset gtf
     
-    return dea_data
+    gtf_data_sub = gtf_data.loc[gtf_data[id_type].isin(original_ids),]
+        
+    gtf_data_sub = pd.merge(gtf_data_sub.groupby(by=group_cols)['start'].min().reset_index(drop=False),
+                            gtf_data_sub.groupby(by=group_cols)['end'].max().reset_index(drop=False),
+                            on=group_cols,
+                            how='inner')
+    
+    # Annotate dea
+        
+    annotated_data = pd.merge(gtf_data_sub,
+                              dea_data,
+                              left_on=id_type,
+                              right_index=True,
+                              how='outer')
+
+    return annotated_data
 
 ### ------------------MAIN------------------ ###
 
+import numpy as np
 import pandas as pd
 import re
 import seaborn as sns
@@ -245,6 +234,7 @@ dea.to_csv(out_name, sep='\t', index=False, header=True)
 
 ### Summarize genes by chromosome
 
+dea = dea.fillna('')
 chromosomes_of_interest = list(set(dea.chromosome))
 chromosomes_of_interest.sort()
 

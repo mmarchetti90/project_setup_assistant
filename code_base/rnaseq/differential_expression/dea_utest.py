@@ -111,6 +111,8 @@ def normalize_counts(raw_counts, mode='PFlog1pPF'):
         
         normalized_counts = raw_counts.copy().replace(0, 1, inplace=False)
         
+        normalized_counts = normalized_counts.astype({col : (str if n == 0 else float) for n,col in enumerate(normalized_counts.columns.values)})
+        
         # Deseq2 normalization
         pseudo_ref_sample = gmean(normalized_counts.iloc[:, 1:].replace(0, 1, inplace=False), axis=1)
         norm_factors = np.median(normalized_counts.iloc[:, 1:].div(pseudo_ref_sample, axis=0), axis=0)
@@ -119,6 +121,8 @@ def normalize_counts(raw_counts, mode='PFlog1pPF'):
     else:
         
         normalized_counts = raw_counts.copy()
+        
+        normalized_counts = normalized_counts.astype({col : (str if n == 0 else float) for n,col in enumerate(normalized_counts.columns.values)})
         
         # Proportional fitting
         library_sizes = normalized_counts.iloc[:, 1:].sum(axis=0).values

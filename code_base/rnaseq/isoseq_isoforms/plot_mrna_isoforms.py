@@ -20,12 +20,21 @@ def pars_argv():
     # Path to Pigeon classification file
     classification_path = argv[argv.index('--classification') + 1]
     classification = pd.read_csv(classification_path, sep='\t')
+
+    # Flip x axis for genes on the minus strand so that 5' is on the left?
+    if '--flip_x_for_minus_strand' in argv:
+
+        flip_x_for_minus_strand = True
+
+    else:
+
+        flip_x_for_minus_strand = False
     
-    return genes, gff, classification
+    return genes, gff, classification, flip_x_for_minus_strand
 
 ### ---------------------------------------- ###
 
-def plot_gene(gene, gff, classification):
+def plot_gene(gene, gff, classification, flip_x_for_minus_strand=False):
     
     if gene not in classification.associated_gene.values:
         
@@ -87,6 +96,11 @@ def plot_gene(gene, gff, classification):
     #isoform_plots.spines.top.set_visible(False)
     #isoform_plots.spines.right.set_visible(False)
     #isoform_plots.spines.left.set_visible(False)
+
+    # Flip x axis if on minus strand
+    if gene_exons.strand.values[0] == '-' and flip_x_for_minus_strand:
+        
+        plt.gca().invert_xaxis()
     
     # Plot isoforms' expression
     """
@@ -138,10 +152,10 @@ from sys import argv
 
 ### Parse cli
 
-genes, gff, classification = pars_argv()
+genes, gff, classification, flip_x_for_minus_strand = pars_argv()
 
 ### Plot individual genes
 
 for gene in genes:
     
-    plot_gene(gene, gff, classification)
+    plot_gene(gene, gff, classification, flip_x_for_minus_strand)

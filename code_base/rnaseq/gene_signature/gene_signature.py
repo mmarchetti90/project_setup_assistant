@@ -131,7 +131,7 @@ def scale_features(normalized_counts):
 
 ### ---------------------------------------- ###
 
-def score_gene_set(scaled_features, gene_set, gene_pool=[], bins=50, ctrl_genes_num=50):
+def score_gene_set(norm_features, scaled_features, gene_set, gene_pool=[], bins=50, ctrl_genes_num=50):
     
     # Reset index
     scaled_features = scaled_features.reset_index(drop=True)
@@ -146,8 +146,8 @@ def score_gene_set(scaled_features, gene_set, gene_pool=[], bins=50, ctrl_genes_
                                         (~ scaled_features.GeneSymbol.isin(gene_set)), 'GeneID'].to_list()
     
     # Mean of each gene in the gene_pool across all cells
-    gene_means = scaled_features.loc[(scaled_features.GeneID.isin(gene_pool + gene_set)) |
-                                     (scaled_features.GeneSymbol.isin(gene_pool + gene_set)),].iloc[:, 2:].mean(axis=1)
+    gene_means = norm_features.loc[(norm_features.GeneID.isin(gene_pool + gene_set)) |
+                                   (norm_features.GeneSymbol.isin(gene_pool + gene_set)),].iloc[:, 2:].mean(axis=1)
     
     # Rank genes based on binned expression level, then for each bin of the genes in the gene_set, pick ctrl_genes random genes for genes with matched binned expression
     bin_size = len(gene_means) // bins
@@ -218,7 +218,7 @@ scaled_counts = scale_features(norm_counts)
 
 ### Calculate gene signatures
 
-gene_signature = score_gene_set(scaled_counts, gene_list, bins=50, ctrl_genes_num=(20 * len(gene_list.shape)))
+gene_signature = score_gene_set(norm_counts, scaled_counts, gene_list, bins=50, ctrl_genes_num=(20 * len(gene_list.shape)))
 
 gene_signature.name = gene_list_name
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This script reads in Kraken2 reports and merges them at the desired level
+This script reads in Kraken2/Bracken reports and merges them at the desired level
 """
 
 ### ---------------------------------------- ###
@@ -64,20 +64,28 @@ def parse_args():
         
         rescale_toggle = False
 
-    return k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle
+    # Use raw counts or percent for downstream analyses?
+    # Usually best to use percent
+    if '--use_raw' in argv:
+
+        use_raw = True
+
+    else:
+
+        use_raw = False
+
+    return k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle, use_raw
 
 ### ---------------------------------------- ###
 
 def parse_k2_report(sample_name, path, desired_taxonomy, contaminants=[]):
     
-    k2_data = {}
+    k2_data_raw, k2_data_percent = {}, {}
     
     for line in open(path, 'r').readlines():
         
-        # Trim percent_fragments_clade
-        while line.startswith(' '):
-            
-            line = line[1:]
+        # Trim line
+        line = line.strip()
         
         if not len(line):
             
@@ -93,20 +101,22 @@ def parse_k2_report(sample_name, path, desired_taxonomy, contaminants=[]):
         else:
             
             percent_fragments_clade, n_fragments_clade, n_fragments_direct, rank, taxid, name = line.split('\t')
-        
+
         # Trim percent_fragments_clade
-        while percent_fragments_clade.startswith(' '):
-            
-            percent_fragments_clade = percent_fragments_clade[1:]
-        
+        percent_fragments_clade = percent_fragments_clade.strip()
         percent_fragments_clade = float(percent_fragments_clade)
         
+        # Trim n_fragments_clade
+        n_fragments_clade = n_fragments_clade.strip()
+        n_fragments_clade = int(n_fragments_clade)
+
         # Trim name
         while name.startswith(' '):
             
             name = name[1:]
         
         # Skip if undesired
+        root_n, unclassified_n = 0, 0
         if rank == 'R':
             
             root_n = percent_fragments_clade
@@ -115,17 +125,19 @@ def parse_k2_report(sample_name, path, desired_taxonomy, contaminants=[]):
             
             unclassified_n = percent_fragments_clade
         
-        elif rank not in desired_taxonomy or percent_fragments_clade == 0 or taxid in contaminants or name in contaminants:
+        elif rank not in desired_taxonomy or n_fragments_clade == 0 or taxid in contaminants or name in contaminants:
             
             continue
         
         else:
             
-            k2_data[name] = percent_fragments_clade
+            k2_data_raw[name] = n_fragments_clade
+            k2_data_percent[name] = percent_fragments_clade
         
-    k2_data = pd.Series(k2_data, name=sample_name)
+    k2_data_raw = pd.Series(k2_data_raw, name=sample_name)
+    k2_data_percent = pd.Series(k2_data_percent, name=sample_name)
     
-    return k2_data, root_n, unclassified_n
+    return k2_data_raw, k2_data_percent, root_n, unclassified_n
 
 ### ---------------------------------------- ###
 
@@ -138,6 +150,9 @@ def scale_features(raw_dt):
     features_mean = raw_dt.iloc[:, 1:].mean(axis = 1).to_numpy()
     features_std = raw_dt.iloc[:, 1:].std(axis = 1).to_numpy()
     scaled_features.iloc[:, 1:] = scaled_features.iloc[:, 1:].subtract(features_mean, axis="index").div(features_std, axis="index")
+    
+    # Deal with NAs
+    scaled_features = scaled_features.fillna(0)
     
     return scaled_features
 
@@ -351,33 +366,64 @@ from sys import argv
 
 ### Parse args
 
-k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle = parse_args()
+k2_reports, reports_ids, tax_lvl, contaminants, sample_info_path, pca_model_path, umap_model_path, rescale_toggle, use_raw = parse_args()
 
 ### Parse reports
 
-reports_data, roots, unclassifieds = [], {}, {}
+print(f'Parsing {len(k2_reports)} reports')
+
+reports_data_raw, reports_data_percent, roots, unclassifieds = [], [], {}, {}
 for rid,path in zip(reports_ids, k2_reports):
     
-    dt, r, u = parse_k2_report(rid, path, tax_lvl, contaminants)
+    dt_raw, dt_percent, r, u = parse_k2_report(rid, path, tax_lvl, contaminants)
     
-    reports_data.append(dt)
+    reports_data_raw.append(dt_raw)
+    reports_data_percent.append(dt_percent)
     roots[rid] = r
     unclassifieds[rid] = u
 
-reports_data = pd.concat(reports_data, axis=1)
-reports_data.fillna(0, inplace=True)
-reports_data.index = reports_data.index.set_names(['clade'])
+reports_data_raw = pd.concat(reports_data_raw, axis=1)
+reports_data_raw.fillna(0, inplace=True)
+reports_data_raw.index = reports_data_raw.index.set_names(['clade'])
+
+reports_data_percent = pd.concat(reports_data_percent, axis=1)
+reports_data_percent.fillna(0, inplace=True)
+reports_data_percent.index = reports_data_percent.index.set_names(['clade'])
 
 if rescale_toggle:
-    
-    norm_factor = 100 / reports_data.sum(axis=0).values
-    reports_data = reports_data.multiply(norm_factor)
 
-reports_data = reports_data.reset_index(drop=False)
+    # Raw
+    counts_tot = reports_data_raw.sum(axis=0).values
+    norm_factor = np.median(counts_tot) / counts_tot
+    reports_data_raw = reports_data_raw.multiply(norm_factor)
 
-reports_data.to_csv('kraken2_summary.tsv', sep='\t', header=True, index=False)
+    # Percent
+    norm_factor = 100 / reports_data_percent.sum(axis=0).values
+    reports_data_percent = reports_data_percent.multiply(norm_factor)
+
+reports_data_raw = reports_data_raw.reset_index(drop=False)
+reports_data_percent = reports_data_percent.reset_index(drop=False)
+
+reports_data_raw.to_csv('kraken2_summary_raw.tsv', sep='\t', header=True, index=False)
+reports_data_percent.to_csv('kraken2_summary_percent.tsv', sep='\t', header=True, index=False)
+
+### Select data for downstream analyses
+
+if use_raw:
+
+    reports_data = reports_data_raw.copy()
+
+else:
+
+    reports_data = reports_data_percent.copy()
+
+### Remove undetected
+
+reports_data = reports_data.loc[reports_data.iloc[:, 1:].sum(axis=1) > 0,].reset_index(drop=True)
 
 ### Compute richness and Shannon's index
+
+print('Computing richness and diversity')
 
 stats = {'log10_richness' : [],
          'shannon_index' : []}
@@ -421,6 +467,8 @@ plt.close()
 
 ### PCA + Umap
 
+print('Dimensionality reduction')
+
 pca_data, umap_data = reduce_dimensions(reports_data, pca_model_path, umap_model_path, 50, 30)
 
 pca_data = pca_data.reset_index(drop=False)
@@ -433,6 +481,8 @@ pca_data.to_csv('pca_coordinates.tsv', sep='\t', header=True, index=False)
 umap_data.to_csv('umap_coordinates.tsv', sep='\t', header=True, index=False)
 
 ### Pairwise Bray-Curtis dissimilarity
+
+print('Computing pairwise Bray-Curtis dissimilarity')
 
 samples = [c for c in reports_data.columns.values if c != 'clade']
 
@@ -453,6 +503,8 @@ dissimilarity_matrix.to_csv('dissimilarity_matrix.tsv', sep='\t', index=True, he
 
 ### PCoA
 
+print('Generating PCoA embeddings')
+
 pcoa_data = pcoa(dissimilarity_matrix, method='eigh', number_of_dimensions=2, inplace=False).samples
 
 pcoa_data.index = samples
@@ -462,6 +514,8 @@ pcoa_data.columns = ['sample', 'PCoA_1', 'PCoA_2']
 pcoa_data.to_csv('pcoa_coordinates.tsv', sep='\t', index=False, header=True)
 
 ### Clustering
+
+print('Clustering')
 
 # PCA-based clustering
 clusters_pca = cluster_samples(pca_data, 10)
@@ -503,6 +557,8 @@ for ds in datasets:
         all_data = ds.copy()
 
 ### Stats visualizations
+
+print('Generating plots')
 
 hues = [c for c in all_data.columns if c not in ['sample', 'log10_richness', 'shannon_index'] and not c.startswith('PC') and not c.startswith('UMAP')]
 
