@@ -458,10 +458,20 @@
             "main_tag": "utils",
             "secondary_tag": "nested_analysis"
         },
+        "run_pandoc.sh": {
+            "path": "utils/pandoc/run_pandoc.sh",
+            "main_tag": "utils",
+            "secondary_tag": "pandoc"
+        },
         "clinvar_annotation.py": {
             "path": "variant_calling/clinvar/clinvar_annotation.py",
             "main_tag": "variant_calling",
             "secondary_tag": "clinvar"
+        },
+        "pgs_calculator.py": {
+            "path": "variant_calling/pgs/pgs_calculator.py",
+            "main_tag": "variant_calling",
+            "secondary_tag": "pgs"
         },
         "nextflow_variant_calling": {
             "path": "git@github.com:mmarchetti90/nextflow_variant_calling.git",

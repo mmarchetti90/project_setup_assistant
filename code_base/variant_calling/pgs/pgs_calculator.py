@@ -59,7 +59,11 @@ def score_gvcf(path, scoring_dict, min_depth=20):
         
         raw_input = open(path, 'r')
     
-    for line in raw_input:
+    for N,line in enumerate(raw_input):
+
+        if (N + 1) % 10000 == 0:
+    
+            print(f'Processed {N + 1} vcf lines', end='\r')
         
         if type(line) == bytes:
             

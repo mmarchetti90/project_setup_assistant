@@ -274,10 +274,6 @@ def gapless_alignment(query, subject, min_overlap=50, matches_reward=1, mismatch
 
 def kmer_alignment(query, subject, kmer_size=31, min_anchor_kmers=50, matches_reward=1, mismatches_penalty=-1, gap_penalty=0):
     
-    """
-    Local alignment using k-mers matching
-    """
-
     # All uppercase
     
     query, subject = query.upper(), subject.upper()
@@ -297,7 +293,7 @@ def kmer_alignment(query, subject, kmer_size=31, min_anchor_kmers=50, matches_re
     
     if not len(match_offsets):
         
-        return np.array([[], [], []]), (0, 0, 0, 0, 0)
+        return np.array([[], [], []]), ([], 0, 0, 0, 0, 0)
     
     else:
         
@@ -325,30 +321,36 @@ def kmer_alignment(query, subject, kmer_size=31, min_anchor_kmers=50, matches_re
             
             alignment[2, q_start : q_end + kmer_size] = list(subject[s_start : s_end + kmer_size])
         
-            ranges.append((q_start, q_end, s_start, s_end))
+            ranges.append((q_start, q_end + kmer_size, s_start, s_end + kmer_size))
         
-        # Fill in alignment graph
+        if not len(ranges):
+            
+            return np.array([[], [], []]), ([], 0, 0, 0, 0, 0)
         
-        alignment[1, alignment[0,] == alignment[2,]] = '|'
+        else:
+            
+            # Fill in alignment graph
         
-        alignment[1, (alignment[0,] != alignment[2,]) & (alignment[2,] != '-')] = ' '
-        
-        # Alignment stats
-        
-        alignment_score = (matches_reward * np.sum(alignment[1,] == '|') +
-                           mismatches_penalty * np.sum(alignment[1,] == ' ') +
-                           gap_penalty * np.sum(alignment[1,] == '-'))
-        
-        query_coverage = 100 * np.sum(alignment[1,] != '-') / alignment.shape[1]
-        
-        alignment_length = np.where(alignment[1,] != '-')[0]
-        alignment_length = alignment_length[-1] - alignment_length[0] + 1
-        
-        identity = 100 * np.sum(alignment[1,] == '|') / alignment_length
-        
-        norm_alignment_score = alignment_score * (alignment_length / alignment.shape[1])
-        
-        return alignment, (ranges, alignment_length, query_coverage, identity, alignment_score, norm_alignment_score)
+            alignment[1, alignment[0,] == alignment[2,]] = '|'
+            
+            alignment[1, (alignment[0,] != alignment[2,]) & (alignment[2,] != '-')] = ' '
+            
+            # Alignment stats
+            
+            alignment_score = (matches_reward * np.sum(alignment[1,] == '|') +
+                               mismatches_penalty * np.sum(alignment[1,] == ' ') +
+                               gap_penalty * np.sum(alignment[1,] == '-'))
+            
+            query_coverage = 100 * np.sum(alignment[1,] != '-') / alignment.shape[1]
+            
+            alignment_length = np.where(alignment[1,] != '-')[0]
+            alignment_length = (alignment_length[-1] - alignment_length[0] + 1) if len(alignment_length) else 0
+            
+            identity = (100 * np.sum(alignment[1,] == '|') / alignment_length) if alignment_length else 0
+            
+            norm_alignment_score = alignment_score * (alignment_length / alignment.shape[1])
+            
+            return alignment, (ranges, alignment_length, query_coverage, identity, alignment_score, norm_alignment_score)
 
 ### ---------------------------------------- ###
 
