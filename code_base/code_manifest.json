@@ -448,6 +448,11 @@
             "main_tag": "utils",
             "secondary_tag": "genomic_utils"
         },
+        "phenotype_to_hpo.py": {
+            "path": "utils/hpo/phenotype_to_hpo.py",
+            "main_tag": "utils",
+            "secondary_tag": "hpo"
+        },
         "make_analysis_report.py": {
             "path": "utils/html_report_maker/make_analysis_report.py",
             "main_tag": "utils",
