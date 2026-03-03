@@ -1,0 +1,105 @@
+software	scope_of_work	description	location
+DiagnosticRNASeq	allelic imbalance; clinical data; rna; splicing	Clinical diagnostic analysis of RNA data	git@github.com:mmarchetti90/DiagnosticRNASeq.git
+differential_analysis_tools.py	analysis utilities	Filtering of differential analyses	Local
+two_level_nested_analysis.py	analysis utilities	Analysis of nested data	Local
+ATACSeq_analysis	chromatin	Visualization of chromatin data peaks	git@github.com:mmarchetti90/ATACSeq_analysis.git
+atacseq_annotate.py	chromatin	Annotation of chromatin differential analyses	Local
+atacseq_filter_diff_analysis_significant_only.py	chromatin	Differential analysis of chromatin data	Local
+atacseq_filter_diff_analysis.py	chromatin	Annotation of chromatin differential analyses	Local
+atacseq_peaks_visualizer_nopeaks.py	chromatin	Filtering of chromatin differential analyses	Local
+atacseq_peaks_visualizer.py	chromatin	Filtering of chromatin differential analyses	Local
+atacseq_run_deseq2.R	chromatin	Differential analysis of chromatin data	Local
+counts_to_rlog.R	chromatin; dna; rna	Conversion of raw counts from chromatin, rna, or dna data	Local
+counts_to_tpm.py	chromatin; dna; rna	Conversion of raw counts from chromatin, rna, or dna data	Local
+ngs_counts_matrix_batch_correction.R	chromatin; dna; rna	Batch correction of sequencing count data	Local
+atacseq_meme-sea_interpolation.py	chromatin; motif enrichment	Image analysis of Drosophila Malpighian tubules	Local
+atacseq_deg_coverage.py	chromatin; rna	Integration of chromatin and RNA data	Local
+atacseq_rnaseq_integration.py	chromatin; rna	Integration of chromatin and RNA data	Local
+phenotype_to_hpo.py	clinical data	Converts phenotypic descriptions to HPO terms	Local
+GeneExpressionSurvival	clinical data; integration; rna	Survival analysis	git@github.com:mmarchetti90/GeneExpressionSurvival.git
+clinvar_annotation.py	clinical data; variant calling	Runs Clinvar annotation of variants from a vcf file	Local
+pgs_calculator.py	clinical data; variant calling	Calculates a PolyGenic Score using variants from a vcf	Local
+vep_rest_api.py	clinical data; variant calling	Runs VEP annotation of variants from a vcf file	Local
+dot_and_boxplot.py	data exploration; data visualization	Dot plot using data from a pandas data frame	Local
+fit_glm.py	data exploration; machine learning	Data exploration using machine learning	Local
+fit_ml_models.py	data exploration; machine learning	Data exploration using machine learning	Local
+unbalanced_dataset_split.py	data exploration; machine learning	Data exploration using machine learning	Local
+cytoarray_baf_and_lrr_plots.py	data visualization	Plots Log R Ratio (LRR) and B Allele Frequency (LRR) data from cytological arrays for CNV detection	Local
+volcano_plots.R	data visualization; general utilities; rna	Volcano plot of differentially expressed genes	Local
+sunburst_composition.py	data visualization; metagenomics	Sunburst plot of bacteria composition in replicates of sample groups	Local
+rlog_pheatmap.R	data visualization; rna	Heatmap using rlog-normalized expression data	Local
+run_triwise.R	data visualization; rna	Tri-wise plot from differential gene expression data	Local
+circos_plot.py	data visualization; variant calling	Circos plot of chromosomal aberrations by patient	Local
+find_outliers_between_two_samples.py	general utilities	Find outlier data between two samples	Local
+hierarchy_explorer.py	general utilities	Parse a hierarchy database 	Local
+make_analysis_report.py	general utilities	Creates a html report by reading ReadME.txt	Local
+run_pandoc.sh	general utilities	Converts a markdown document to html or pdf	Local
+various_utils.py	general utilities	Generally useful utilities	Local
+BacterialGenomeAssembly	genome assembly; metagenomics	Assembly of genomes from WGS data	git@github.com:mmarchetti90/BacterialGenomeAssembly.git
+fix_fastq_pair.sh	genomic utilities	Removing non-paired reads in sequencing mate files	Local
+genomic_utils.py	genomic utilities	Generally useful utilities for genomic data	Local
+get_contig_size.py	genomic utilities	Get the size of contains in a fasta file	Local
+get_genes_bed.py	genomic utilities	Creates a bed file for gene regions	Local
+split_fasta.py	genomic utilities	Converts a multi-contig fasta to individual fasta files	Local
+MalpighianTubulesAnalysis	image analysis	Visualization of chromatin data peaks	git@github.com:mmarchetti90/MalpighianTubulesAnalysis.git
+image_utils.py	image analysis	Analysis of raw chromatin sequencing data	Local
+lipidomics_analysis	lipidomics	Differential analysis of lipidomics data	git@github.com:mmarchetti90/metabolomics_lipidomics.git
+metabolomics_analysis	metabolomics	Differential analysis of metabolomics data	git@github.com:mmarchetti90/metabolomics_lipidomics.git
+metagenome_assembly	metagenomics; taxonomy	Assembly of metagenomic samples	git@github.com:mmarchetti90/metagenome_assembly.git
+nextflow_kraken2	metagenomics; taxonomy	Metagenomic analysis with Kraken2	git@github.com:mmarchetti90/nextflow_kraken2.git
+vcf2msa	metagenomics; taxonomy	Multiple sequence alignment from variant calling data	git@github.com:mmarchetti90/vcf2msa.git
+explore_taxonomy_hierarchy.py	metagenomics; taxonomy	Taxonomical data exploration	Local
+kraken2_merge_records.py	metagenomics; taxonomy	Metagenomic analysis with Kraken2	Local
+prepare_taxonomy_db.py	metagenomics; taxonomy	Taxonomical data exploration	Local
+shannon_index.py	metagenomics; taxonomy	Metagenomic analysis	Local
+Bismark_WGBS	methylation	Analysis of raw methylation data from short reads sequencing	git@github.com:mmarchetti90/Bismark_WGBS.git
+long_reads_methylation	methylation	Analysis of raw methylation data from long reads sequencing	git@github.com:mmarchetti90/long_reads_methylation.git
+merge_met_cov.py	methylation	Merge methylation counts data	Local
+methylation_analysis_islands.R	methylation	Differential analysis of methylation data	Local
+methylation_analysis_tss.R	methylation	Differential analysis of methylation data	Local
+methylation_reanalysis.R	methylation	Differential analysis of methylation data	Local
+annotate_affy_counts.py	microarray	Gene expression analysis via microarray	Local
+annotate_affy_results.py	microarray	Gene expression analysis via microarray	Local
+run_affy.R	microarray	Gene expression analysis via microarray	Local
+extract_gene_promoter_sequences.py	motif enrichment	Extraction of gene promoter regions	Local
+run_homer_fasta.sh	motif enrichment	Motif enrichment with HOMER	Local
+run_homer_genes.sh	motif enrichment	Motif enrichment with HOMER	Local
+run_meme_fimo.sh	motif enrichment	Motif enrichment with MEME	Local
+run_meme_sea.sh	motif enrichment	Motif enrichment with MEME	Local
+summarize_fimo.py	motif enrichment	Motif enrichment with MEME	Local
+RNASeq_Analysis	rna	Analysis of raw RNA sequencing data	git@github.com:mmarchetti90/RNASeq_Analysis.git
+annotate_counts_matrix.py	rna	Annotation of rna gene expression count matrix	Local
+annotate_dea.py	rna	Annotation of rna differential expression data	Local
+check_strandness.py	rna	RNA sequencing quality control	Local
+dea_utest.py	rna	Differential analysis of gene expression data	Local
+dexseq_sleuth_integration.R	rna	Integration of exon usage and gene isoforms data	Local
+gdc_deseq2_get_rlog_counts.R	rna	Merge RNA gene expression counts data	Local
+gdc_merge_counts.py	rna	Merge RNA gene expression counts data	Local
+gdc_merge_tpms.py	rna	Merge RNA gene expression counts data	Local
+gene_signature.py	rna	Gene set expression signature calculation from rna data	Local
+merge_counts_v1.sh	rna	Merge RNA gene expression counts data	Local
+merge_counts_v2.sh	rna	Merge RNA gene expression counts data	Local
+merge_counts_v3.sh	rna	Merge RNA gene expression counts data	Local
+music_deconvolution.R	rna	Deconvolution of bulk rna gene expression data	Local
+plot_mrna_isoforms.py	rna	Visualization of splicing isoforms from Isoseq	Local
+rna_qc.py	rna	RNA sequencing quality control	Local
+run_deseq2.R	rna	Differential analysis of gene expression data	Local
+run_dexseq.R	rna	Differential analysis of exon usage data	Local
+run_sleuth.R	rna	Differential analysis of gene isoforms data	Local
+IsoseqAnalysis	rna; splicing	Analysis of splicing isoforms from PACB data	git@github.com:mmarchetti90/IsoseqAnalysis.git
+splice_check	rna; splicing	Analysis of gene splicing	git@github.com:mmarchetti90/splice_check.git
+gene_splicing_analysis.py	rna; splicing	Analysis of gene splicing	Local
+TXT-Encryption	secrecy	Encryption of text files	git@github.com:mmarchetti90/TXT-Encryption.git
+scRNA-Seq-analysis	single-cell	Analysis of raw RNA single-cell sequencing data	git@github.com:mmarchetti90/scRNA-Seq-analysis.git
+download_gsea_hallmark_genes.py	term enrichment	Over-representation analysis datasets download	Local
+download_reactome_genes.py	term enrichment	Over-representation analysis datasets download	Local
+enrichment_analysis_1.py	term enrichment	Over-representation analysis	Local
+enrichment_analysis_2.py	term enrichment	Over-representation analysis	Local
+prep_for_revigo.py	term enrichment	Over-representation analysis	Local
+prep_go_annotations.py	term enrichment	Over-representation analysis datasets download	Local
+preranked_gsea.R	term enrichment	Gene Set Enrichment Analysis	Local
+simplify_terms_stringent.py	term enrichment	Over-representation analysis	Local
+nextflow_variant_calling	variant calling	Variant calling on raw data from DNA sequencing	git@github.com:mmarchetti90/nextflow_variant_calling.git
+filter_vcf.py	variant calling	Filters a vcf file	Local
+reformat_vcf.py	variant calling	Reformats a vcf file	Local
+summarize_vcf.py	variant calling	Summarizes a vcf file	Local

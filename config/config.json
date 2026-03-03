@@ -1,0 +1,12 @@
+{
+    "TEXT_GENERATION_MODEL" : "Qwen/Qwen3-0.6B",
+    "TEXT_EMBEDDING_MODEL" : "Qwen/Qwen3-Embedding-0.6B",
+    "ZERO_SHOT_MODEL" : "facebook/bart-large-mnli",
+    "DEVICE_MAP" : "cpu",
+    "MAX_NEW_TOKENS" : 512,
+    "ZERO_SHOT_SCORE_THRESHOLD" : 0.25,
+    "RAG_SIMILARITY_FUNCTION" : "cosine",
+    "RAG_SCORE_THRESHOLD" : 0.5,
+    "CODE_BASE_PATH": "/Users/earthsea/Desktop/development/local/ai_assistant_dev/code_base",
+    "CODE_MANIFEST_PATH": "/Users/earthsea/Desktop/development/local/ai_assistant_dev/code_base/code_manifest.tsv"
+}

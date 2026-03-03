@@ -3,12 +3,27 @@
 set -e
 set -o pipefail
 
-### Main paths
+### Main paths and variables
 
 venv_path="/Users/earthsea/Documents/hf_transformers_env/.env/bin/activate"
-ai_assistant_path="/Users/earthsea/Documents/hf_transformers_env/ai_assistant"
-config_path="${ai_assistant_path}/config.json"
-notes_path="${1:-'missing'}"
+ai_assistant_path="/Users/earthsea/Documents/hf_transformers_env/ai_assistant_v2"
+module_root="src"
+config_path="${ai_assistant_path}/config/config.json"
+notes_path="${1:-missing}"
+code_retrieval_stringency="${1:-false}"
+
+if [ "${code_retrieval_stringency}" = "true" ]
+then
+
+    code_retrieval_stringency="--code_filtering"
+
+else
+
+    code_retrieval_stringency=""
+
+fi
+
+export PYTHONPATH="${ai_assistant_path}:$PYTHONPATH"
 
 ### Activate virtual environment
 
@@ -18,32 +33,27 @@ source ${venv_path}
 
 PS3='Choose what to do: '
 
-select run_type in "Download models" "Summarize notes" "Gather resources" "Summarize notes and gather resources" "Exit"; do
+select run_type in "Summarize notes" "Gather resources" "Summarize notes and gather resources" "Exit"; do
 
     case $run_type in
-        
-        "Download models")
-            
-            python ${ai_assistant_path}/scripts/download_models.py \
-            --config ${config_path}
-            
-            break
-            ;;
 
         "Summarize notes")
             
-            python ${ai_assistant_path}/scripts/summarize_notes.py \
+            python -m ${module_root} \
             --config ${config_path} \
-            --notes ${notes_path}
+            --notes ${notes_path} \
+            --mode summarize_notes
             
             break
             ;;
 
         "Gather resources")
             
-            python ${ai_assistant_path}/scripts/gather_resources.py \
+            python -m ${module_root} \
             --config ${config_path} \
-            --notes ${notes_path}
+            --notes ${notes_path} \
+            --mode gather_code \
+            ${code_retrieval_stringency}
 
             /bin/bash gather_useful_code.sh
 
@@ -52,13 +62,10 @@ select run_type in "Download models" "Summarize notes" "Gather resources" "Summa
         
         "Summarize notes and gather resources")
             
-            python ${ai_assistant_path}/scripts/summarize_notes.py \
+            python -m ${module_root} \
             --config ${config_path} \
-            --notes ${notes_path}
-
-            python ${ai_assistant_path}/scripts/gather_resources.py \
-            --config ${config_path} \
-            --notes ReadME.txt
+            --notes ${notes_path} \
+            --mode summarize_notes_and_gather_code
 
             /bin/bash gather_useful_code.sh
 
