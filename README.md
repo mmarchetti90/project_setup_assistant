@@ -18,7 +18,7 @@ AI agent for setting up an analysis directory for a bioinformatics project
 
 ---
 
-## SETUP [UPDATE]
+## SETUP
 
 * Clone repository
 
