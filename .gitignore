@@ -1,3 +1,2 @@
-bart-large-cnn/
-bart-large-mnli/
+__pycache__/
 .DS_Store

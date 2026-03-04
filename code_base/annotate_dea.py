@@ -219,6 +219,8 @@ else:
     
     dea = pd.read_csv(dea_file, sep='\t', index_col=1)
 
+log2fc_col = [col for col in dea.columns.values if col.lower().startswith('log2f')][0] # Log2FC columns are named log2FoldChange from DESeq2, and log2fold_<comparison> for DEXSeq
+
 # Load GTF file
 
 gtf = parse_gtf(gtf_file, biotypes_of_interest, chromosomes_of_interest, analysis_level)
@@ -232,9 +234,18 @@ dea = add_info(dea.copy(), gtf, analysis_level)
 out_name = f'{dea_file.split("/")[-1][:-4]}_annotated.tsv'
 dea.to_csv(out_name, sep='\t', index=False, header=True)
 
+### Fill NA values
+
+dea.loc[:, 'chromosome'] = dea['chromosome'].fillna('')
+dea.loc[:, 'padj'] = dea['padj'].fillna(1)
+dea.loc[:, log2fc_col] = dea[log2fc_col].fillna(0)
+
+### Filter by chromosome
+
+dea = dea.loc[dea['chromosome'].isin(chromosomes_of_interest),]
+
 ### Summarize genes by chromosome
 
-dea = dea.fillna('')
 chromosomes_of_interest = list(set(dea.chromosome))
 chromosomes_of_interest.sort()
 
@@ -247,8 +258,6 @@ out_name = f'{dea_file.split("/")[-1][:-4]}_annotated_summary.tsv'
 elements_by_chromosome.to_csv(out_name, sep='\t', index=False, header=True)
 
 ### Plot summary
-
-log2fc_col = [col for col in dea.columns.values if col.lower().startswith('log2f')][0] # Log2FC columns are named log2FoldChange from DESeq2, and log2fold_<comparison> for DEXSeq
 
 dea.sort_values(by='chromosome', inplace=True)
 

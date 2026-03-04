@@ -20,6 +20,7 @@ GeneExpressionSurvival	clinical data; integration; rna	Survival analysis	git@git
 clinvar_annotation.py	clinical data; variant calling	Runs Clinvar annotation of variants from a vcf file	Local
 pgs_calculator.py	clinical data; variant calling	Calculates a PolyGenic Score using variants from a vcf	Local
 vep_rest_api.py	clinical data; variant calling	Runs VEP annotation of variants from a vcf file	Local
+data_qc_dsl.py	data exploration	Domain-Specific Language for general data quality control	
 dot_and_boxplot.py	data exploration; data visualization	Dot plot using data from a pandas data frame	Local
 fit_glm.py	data exploration; machine learning	Data exploration using machine learning	Local
 fit_ml_models.py	data exploration; machine learning	Data exploration using machine learning	Local
