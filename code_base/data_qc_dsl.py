@@ -13,13 +13,86 @@ from datetime import datetime
 
 ### CLASSES AND FUNCTIONS ------------------ ###
 
+def help_fun():
+    
+    print("""
+    Domain-Specific Language for general data quality control
+    
+    USAGE
+    -----
+        python data_qc_dsl.py [args]
+    
+    ARGS
+    ----
+        --data_path
+            Path to data file
+            Required
+        --sheet
+            Sheet of xlsx file to be used
+            Omit if file is text
+""")
+
+### ---------------------------------------- ###
+
+def parse_args() -> tuple[str]:
+    
+    """
+    Parses CLI arguments
+    
+    Returns
+    -------
+    data_path : str
+        Path to data file
+    sheet : str
+        Sheet of xlsx file to be used
+    """
+    
+    # Path to data (tsv, csv, txt, or xlsx table)
+    
+    data_path = argv[argv.index('--data_path') + 1] if '--data_path' in argv else ''
+    
+    # Sheet for xlsx file
+    
+    sheet = argv[argv.index('--sheet') + 1] if '--sheet' in argv else '0'
+    
+    return data_path, sheet
+
+### ---------------------------------------- ###
+
 class qc_rule:
 
     """
     Main data QC-check class
+    
+    Parameters
+    ----------
+    rule_name : str
+        Name used by the rule
+    qc_fun : Callable
+        Function to apply to the dataset
+    error_message : str
+        Description of errors identified by the rule
+    
+    Methods
+    -------
+    forward(data: pd.DataFrame)
+        Applies the analysis_fun to data
     """
 
     def __init__(self, rule_name: str, qc_fun: Callable, error_message: str) -> None:
+        
+        """
+        Class init
+        
+        Parameters
+        ----------
+        rule_name : str
+            Name used by the rule
+        qc_fun : Callable
+            Function to apply to the dataset
+        error_message : str
+            Description of errors identified by the rule
+        """
 
         self.rule_name = rule_name
 
@@ -29,7 +102,21 @@ class qc_rule:
 
     ### ------------------------------------ ###
 
-    def forward(self, data):
+    def forward(self, data: pd.DataFrame) -> dict[str]:
+        
+        """
+        Applies the qc_fun to data
+        
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Dataframe to process
+        
+        Returns
+        -------
+        report : dict[str]
+            Dictionary containing a report of the QC check
+        """
 
         # Find issues
         
@@ -51,10 +138,23 @@ class qc_rule:
 class quality_inspector:
 
     """
-    Class for applying QC rules
+    Class handling QC rules execution
+    
+    Methods
+    -------
+    log(log_message: str, timestamp: bool=True)
+        Prints a log message to stdout
+    add_rule(new_rule: Callable)
+        Adds a qc_rule class object
+    inspect(data: pd.DataFrame)
+        Runs QC rules sequentially on the data
     """
 
     def __init__(self) -> None:
+        
+        """
+        Class init
+        """
 
         self.qc_rule_set = []
         
@@ -64,6 +164,17 @@ class quality_inspector:
 
     @staticmethod
     def log(log_message: str, timestamp: bool=True) -> None:
+        
+        """
+        Prints a log message to stdout
+        
+        Parameters
+        ----------
+        log_message : str
+            Message to print
+        timestamp : bool
+            Set to True to prepend a timestamp
+        """
         
         if timestamp:
 
@@ -80,6 +191,15 @@ class quality_inspector:
     ### ------------------------------------ ###
 
     def add_rule(self, new_rule: Callable) -> None:
+        
+        """
+        Adds a qc_rule class object
+        
+        Parameters
+        ----------
+        new_rule : Callable
+            New qc_rule class object to add
+        """
 
         self.qc_rule_set.append(new_rule)
 
@@ -87,7 +207,21 @@ class quality_inspector:
 
     ### ------------------------------------ ###
 
-    def inspect(self, data: pd.DataFrame) -> dict:
+    def inspect(self, data: pd.DataFrame) -> list[dict]:
+        
+        """
+        Runs QC rules sequentially on the data
+        
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Dataframe to process
+        
+        Returns
+        -------
+        reports : list[dict]
+            List of QC reports
+        """
         
         # Inspect
         
@@ -123,7 +257,20 @@ class quality_inspector:
 def check_column_data_type_consistency(data: pd.DataFrame, major_type_threshold: float=0.8) -> list[str]:
     
     """
-    Checks if columns have mixed types
+    Checks if columns have mixed data types
+    N.B. float and int are fine together
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe to process
+    major_type_threshold : float=0.8
+        Minimum amount of values of a specific dtype to assign the dtype to the whole column
+    
+    Returns
+    -------
+    warnings : list[str]
+        List of warning messages
     """
     
     # Reset index
@@ -138,8 +285,18 @@ def check_column_data_type_consistency(data: pd.DataFrame, major_type_threshold:
         'bool' : lambda val: val.lower() in ('true', 'false', 't', 'f', 'yes', 'no', 'y', 'n', 'on', 'off', '1', '0'),
         'datetime_fmt0' : lambda val: type(val) == datetime,
         'datetime_fmt1' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%m-%d %H:%M:%S")) == datetime.datetime,
-        'datetime_fmt2' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%m-%d")) == datetime.datetime,
-        'datetime_fmt3' : lambda val: type(datetime.strptime(val, "%H:%M:%S")) == datetime.datetime,
+        'datetime_fmt2' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%B-%d %H:%M:%S")) == datetime.datetime,
+        'datetime_fmt3' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%b-%d %H:%M:%S")) == datetime.datetime,
+        'datetime_fmt4' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%m-%Y %H:%M:%S")) == datetime.datetime,
+        'datetime_fmt5' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%B-%Y %H:%M:%S")) == datetime.datetime,
+        'datetime_fmt6' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%b-%Y %H:%M:%S")) == datetime.datetime,
+        'datetime_fmt7' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%m-%d")) == datetime.datetime,
+        'datetime_fmt8' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%B-%d")) == datetime.datetime,
+        'datetime_fmt9' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%Y-%b-%d")) == datetime.datetime,
+        'datetime_fmt10' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%m-%Y")) == datetime.datetime,
+        'datetime_fmt11' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%B-%Y")) == datetime.datetime,
+        'datetime_fmt12' : lambda val: type(datetime.strptime(val.replace('/', '-'), "%d-%b-%Y")) == datetime.datetime,
+        'datetime_fmt13' : lambda val: type(datetime.strptime(val, "%H:%M:%S")) == datetime.datetime,
         'str' : lambda val: type(str(val)) == str
     }
     
@@ -228,6 +385,16 @@ def check_missing_header_values(data: pd.DataFrame) -> list[str]:
     
     """
     Checks if columns header values are missing
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe to process
+    
+    Returns
+    -------
+    warnings : list[str]
+        List of warning messages
     """
     
     # Parse columns
@@ -248,6 +415,18 @@ def check_missing_values(data: pd.DataFrame, missing_threshold: float=0.1):
     
     """
     Checks if columns have more than missing_threshold missing values
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe to process
+    missing_threshold : float=0.1
+        Minimum percentage of missing values to trigger a warning
+    
+    Returns
+    -------
+    warnings : list[str]
+        List of warning messages
     """
     
     # Parse columns
@@ -260,7 +439,7 @@ def check_missing_values(data: pd.DataFrame, missing_threshold: float=0.1):
         
         na_freq = na_count / data.shape[0]
         
-        if (na_count / data.shape[0]) >= missing_threshold:
+        if na_freq >= missing_threshold:
             
             warnings.append(f'MISSING VALUES in column "{col}" make up {(100 * na_freq):.3f}% of all values')
     
@@ -268,10 +447,24 @@ def check_missing_values(data: pd.DataFrame, missing_threshold: float=0.1):
 
 ### ---------------------------------------- ###
 
-def check_rare_categorical_values(data: pd.DataFrame) -> list[str]:
+def check_rare_categorical_values(data: pd.DataFrame, min_counts: int=3, min_repeated_vals: float=0.75) -> list[str]:
     
     """
     Checks if categorical columns have rare categories and check if they're likely to be due to typos
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe to process
+    min_counts : int=3
+        Minimum number of times a variable value should repeat to be considered a category
+    min_repeated_vals : float=0.75
+        Minimum amount of repeated values making up the variable for it to be considered categorical
+    
+    Returns
+    -------
+    warnings : list[str]
+        List of warning messages
     """
     
     # Parse columns
@@ -292,13 +485,11 @@ def check_rare_categorical_values(data: pd.DataFrame) -> list[str]:
         
         categories = {val : (col_data == val).sum() for val in set(col_data)}
         
-        # Skip if repeated values with count > 3 make up less than 75% of the data
+        # Skip if repeated values with count > min_counts make up less than min_repeated_vals of the data
         
-        min_count = 3
+        categorical_count = sum([n for c,n in categories.items() if n > min_counts])
         
-        categorical_count = sum([n for c,n in categories.items() if n > min_count])
-        
-        if (categorical_count / len(col_data)) < 0.75:
+        if (categorical_count / len(col_data)) < min_repeated_vals:
             
             continue
         
@@ -370,7 +561,9 @@ if __name__ == '__main__':
     from sys import exit as sys_exit
     from os.path import exists
 
-    data_path = argv[argv.index('--data_path') + 1] if '--data_path' in argv else ''
+    # Parse cli args
+
+    data_path, sheet = parse_args()
 
     # Run data QC
 
@@ -385,8 +578,6 @@ if __name__ == '__main__':
             data = pd.read_csv(data_path, sep='\t')
         
         elif data_path.endswith('.xlsx'):
-            
-            sheet = argv[argv.index('--sheet') + 1] if '--sheet' in argv else 0
             
             try:
                 
@@ -437,7 +628,7 @@ if __name__ == '__main__':
         inspector.add_rule(
             qc_rule(
                 'Rare categorical values',
-                check_rare_categorical_values,
+                lambda dt: check_rare_categorical_values(data=dt, min_counts=3, min_repeated_vals=0.75),
                 'WARNING: some columns may have categorical values with typos'
             )
         )
