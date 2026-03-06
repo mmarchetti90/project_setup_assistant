@@ -1122,12 +1122,14 @@ def check_distribution(data: pd.DataFrame, apply_transform: bool=False) -> tuple
                     simplefilter("ignore", category=RuntimeWarning)
                     
                     best_tr = max(values, key=values.get)
+
+                    if best_tr in helpful_tr:
                 
-                    col_data_tr = transformations[best_tr](col_data)
-                    
-                    transformed_data.loc[:, col] = col_data_tr
-                    
-                    warnings.append(f'APPLIED TRANSFORMATION "{best_tr}" for column "{col}". Normality pvalue improved from {distribution_parameters["normality_p"]["none"]:.2e} to {distribution_parameters["normality_p"][best_tr]:.2e}')
+                        col_data_tr = transformations[best_tr](col_data)
+                        
+                        transformed_data.loc[:, col] = col_data_tr
+                        
+                        warnings.append(f'APPLIED TRANSFORMATION "{best_tr}" for column "{col}". Normality pvalue improved from {distribution_parameters["normality_p"]["none"]:.2e} to {distribution_parameters["normality_p"][best_tr]:.2e}')
     
     return transformed_data, warnings
 
