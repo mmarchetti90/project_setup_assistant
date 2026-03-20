@@ -19,6 +19,8 @@ from scipy.stats import (
     mannwhitneyu,
     normaltest
 )
+from sklearn.decomposition import PCA
+from sklearn.neighbors import NearestNeighbors
 from warnings import catch_warnings, simplefilter
 
 ### CLASSES AND FUNCTIONS ------------------ ###
@@ -89,7 +91,11 @@ def parse_args():
     
     apply_transform = ('--apply_transforms' in argv)
     
-    return data_path, sheet, one_hot, remove_outliers, apply_transform
+    # Missing values imputation
+    
+    impute_missing = ('--impute_missing' in argv)
+    
+    return data_path, sheet, one_hot, remove_outliers, apply_transform, impute_missing
 
 ### ---------------------------------------- ###
 
@@ -826,6 +832,8 @@ def outlier_detection(data: pd.DataFrame, remove_outliers: bool=False, mahalanob
     data_sub = data[test_cols]
     
     data_sub = data_sub.loc[:, data_sub.isna().sum(axis=0) == 0] # Only use columns without missing values
+    
+    data_sub_idx = data_sub.index.values
 
     data_sub_mean = data_sub.mean(axis=0)
     
@@ -839,7 +847,7 @@ def outlier_detection(data: pd.DataFrame, remove_outliers: bool=False, mahalanob
     
     m_thr = chi2.ppf(0.95, len(test_cols))
     
-    outliers = col_data_idx[np.where(m_distances_squared > m_thr)[0]]
+    outliers = data_sub_idx[np.where(m_distances_squared > m_thr)[0]]
 
     mahalanobis_outliers = []
     
@@ -1135,6 +1143,143 @@ def check_distribution(data: pd.DataFrame, apply_transform: bool=False) -> tuple
 
 ### ---------------------------------------- ###
 
+def impute_missing_values(data: pd.DataFrame, max_missing: float=0.25, neighbors_n: int=3) -> tuple[pd.DataFrame, list[str]]:
+    
+    """
+    Impute missing values as the median of values from neighboring samples in PCA space
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe to process
+    max_missing : bool=False
+        Maximum percentage of missing values in a column to attempt missing values imputation
+    neighbors_n : int=3
+        Number of neighboring samples to use for missing value imputation
+    
+    Returns
+    -------
+    data_cleaned : pd.DataFrame
+        Data with missing values added
+    warnings : list[str]
+        List of warning messages
+    """
+    
+    # Reset index
+
+    data = data.reset_index(drop=True)
+    
+    data_cleaned = data.copy()
+    
+    # Z-score scaling
+    
+    data_scaled = data.copy()
+    
+    acceptable_types = ['int64', 'float64']
+    
+    for col in data_scaled.columns:
+        
+        col_dtype = str(data_scaled[col].dtypes)
+        
+        if col_dtype in acceptable_types:
+            
+            col_data = data_scaled[col].dropna().values.astype('float64')
+            
+            col_data_scaled = (col_data - col_data.mean()) / (col_data.std() + 1e-6)
+            
+            data_scaled[col] = data_scaled[col].astype('float64')
+            
+            data_scaled.loc[~ data_scaled[col].isna(), col] = col_data_scaled
+    
+    # Remove columns with missing values or object type
+    
+    data_scaled = data_scaled.loc[:, data_scaled.isna().sum(axis=0) == 0]
+
+    data_scaled = data_scaled.loc[:, data_scaled.dtypes != 'O']
+    
+    # PCA
+    
+    max_pca_components = data_scaled.shape[1]
+
+    pca_model = PCA(max_pca_components)
+
+    pca_model.fit(data_scaled)
+    
+    # Selecting optimal number of PCs using the elbow method (simplified Kneedle)
+    
+    x0, x1 = 0, min(len(pca_model.explained_variance_), max_pca_components - 1)
+    
+    y0, y1 = pca_model.explained_variance_[x0], pca_model.explained_variance_[x1]
+    
+    gradient = (y1 - y0) / (x1 - x0)
+    
+    intercept = y0
+    
+    difference_vector = [(gradient * x + intercept) - y for x,y in enumerate(pca_model.explained_variance_[:max_pca_components])]
+    
+    optimal_pca_components = difference_vector.index(max(difference_vector)) + 1
+
+    """
+    # Elbow plot of explained variance
+    from matplotlib import pyplot as plt
+    plt.figure(figsize=(5, 3))
+    plt.plot(range(x0 + 1, x1 + 2), pca_model.explained_variance_[:max_pca_components] / 100, 'b', marker='o', markersize=5, linewidth=1)
+    plt.plot([optimal_pca_components, optimal_pca_components], [y0 / 100, y1 / 100], linestyle='dashed', color='red', linewidth=1)
+    plt.xlabel('PC')
+    plt.ylabel('Explained Variance (%)')
+    plt.tight_layout()
+    plt.savefig(f'PCA_ExplainedVariance', dpi=300)
+    plt.close()
+    """
+    
+    # Transform data
+
+    pca_transform = pca_model.transform(data_scaled)[:, :optimal_pca_components]
+    
+    # Find neighbors and use them to impute missing values
+    
+    nn = NearestNeighbors(n_neighbors=10).fit(pca_transform)
+    
+    _, neighbours = nn.kneighbors(pca_transform)
+    
+    na_x_idx, na_y_idx = np.where(data.isna())
+    
+    fixed_log = {}
+    
+    for x, y in zip(na_x_idx, na_y_idx):
+        
+        close_vals = data.iloc[neighbours[x], y].dropna().values[:neighbors_n]
+        
+        if len(close_vals):
+            
+            # Using neighboring samples
+            
+            new_val = np.median(close_vals)
+        
+        else:
+            
+            # Using all samples if no good neighbors
+            
+            new_val = np.median(data.iloc[:, y].dropna().values)
+        
+        data_cleaned.iloc[x, y] = new_val
+        
+        if data.columns[y] not in fixed_log.keys():
+            
+            fixed_log[data.columns[y]] = [x]
+        
+        else:
+            
+            fixed_log[data.columns[y]].append(x)
+    
+    # Warnings
+    
+    warnings = [f'IMPUTED MISSING VALUES for col "{col}" at rows: [{", ".join(np.array(rows).astype(str))}]' for col,rows in fixed_log.items()]
+    
+    return transformed_data, warnings
+
+### ---------------------------------------- ###
+
 if __name__ == '__main__':
 
     # Additional imports
@@ -1145,7 +1290,7 @@ if __name__ == '__main__':
     
     # Parse cli args
 
-    data_path, sheet, one_hot, remove_outliers, apply_transform = parse_args()
+    data_path, sheet, one_hot, remove_outliers, apply_transform, impute_missing = parse_args()
 
     # Run data QC
 
@@ -1205,7 +1350,7 @@ if __name__ == '__main__':
             pipeline(
                 pipeline_name='Check missing values',
                 pipeline_description='Checks for missing values, removes columns with too many, and checks if missingness is not random',
-                analysis_fun=lambda dt: check_missing_values(data=dt, missing_threshold=0.1, max_missing=0.5, max_tests=25)
+                analysis_fun=lambda dt: check_missing_values(data=dt, missing_threshold=0.1, max_missing=1., max_tests=25)
             )
         )
         
@@ -1232,6 +1377,16 @@ if __name__ == '__main__':
                 analysis_fun=lambda dt: check_distribution(data=dt, apply_transform=apply_transform)
             )
         )
+        
+        if impute_missing:
+        
+            manager.add_pipeline(
+                pipeline(
+                    pipeline_name='Impute missing values',
+                    pipeline_description='Imputes missing values using neighboring samples in PCA space',
+                    analysis_fun=lambda dt: impute_missing_values(data=dt, max_missing=0.25, neighbors_n=3)
+                )
+            )
         
         # Run exploration
         
