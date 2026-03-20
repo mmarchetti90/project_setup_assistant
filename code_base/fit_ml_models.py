@@ -30,15 +30,72 @@ from collections.abc import Callable
 from datetime import datetime
 from matplotlib import pyplot as plt
 from sklearn.base import clone
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
-from sklearn.linear_model import Lasso, LogisticRegression, Ridge
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.model_selection import KFold, StratifiedShuffleSplit
-from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import (
+    LinearDiscriminantAnalysis,
+    QuadraticDiscriminantAnalysis
+)
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    AdaBoostRegressor,
+    BaggingClassifier,
+    BaggingRegressor,
+    ExtraTreesClassifier,
+    ExtraTreesRegressor,
+    GradientBoostingClassifier,
+    GradientBoostingRegressor,
+    HistGradientBoostingClassifier,
+    HistGradientBoostingRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor
+)
+from sklearn.gaussian_process import (
+    GaussianProcessClassifier,
+    GaussianProcessRegressor
+)
+from sklearn.linear_model import (
+    ARDRegression,
+    BayesianRidge,
+    ElasticNet,
+    GammaRegressor,
+    HuberRegressor,
+    Lars,
+    Lasso,
+    LassoLars,
+    LinearRegression,
+    LogisticRegression,
+    MultiTaskElasticNet,
+    MultiTaskLasso,
+    OrthogonalMatchingPursuit,
+    PoissonRegressor,
+    QuantileRegressor,
+    RANSACRegressor,
+    Ridge,
+    SGDClassifier,
+    SGDRegressor,
+    TheilSenRegressor,
+    TweedieRegressor
+)
+from sklearn.metrics import (
+    mean_squared_error,
+    r2_score
+)
+from sklearn.model_selection import (
+    KFold,
+    StratifiedShuffleSplit
+)
+from sklearn.naive_bayes import (
+    BernoulliNB,
+    GaussianNB,
+)
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC
+from sklearn.neural_network import (
+    MLPClassifier,
+    MLPRegressor
+)
+from sklearn.svm import (
+    SVC,
+    SVR
+)
 from sys import argv
 
 ### CLASSES -------------------------------- ###
@@ -279,7 +336,82 @@ def parse_args():
 
 ### ---------------------------------------- ###
 
-def evaluate_all_models(X: pd.DataFrame, y: pd.DataFrame, models: dict[Callable], binary: bool=False):
+def init_models(binary: bool=False) -> tuple[Callable]:
+    
+    """
+    Init a set of models to be tested
+    
+    Parameters
+    ----------
+    binary:
+        Set to True to evaluate binary classification
+        Set to False for continuous variables
+    
+    Returns
+    -------
+    models : dict[Callable]
+        Tuple of model_test classes
+    """
+    
+    if binary:
+        
+        models = (
+            model_test('LogisticRegression', LogisticRegression(fit_intercept=False, max_iter=10000)),
+            model_test('SGD', SGDClassifier()),
+            model_test('NeuralNet', MLPClassifier(alpha=1, max_iter=1000, random_state=42)),
+            model_test('LinearDiscriminant', LinearDiscriminantAnalysis(store_covariance=True)),
+            model_test('QuadraticDiscriminant', QuadraticDiscriminantAnalysis(store_covariance=True)),
+            model_test('AdaBoost', AdaBoostClassifier(algorithm="SAMME", random_state=42)),
+            model_test('Bagging', BaggingClassifier(random_state=42)),
+            model_test('ExtraTrees', ExtraTreesClassifier(random_state=42)),
+            model_test('GradientBoosting', GradientBoostingClassifier(random_state=42)),
+            model_test('HistGradientBoosting', HistGradientBoostingClassifier(random_state=42)),
+            model_test('RandomForest', RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, random_state=42)),
+            model_test('GaussianProcess', GaussianProcessClassifier(random_state=42)),
+            model_test('BernoulliNB', BernoulliNB()),
+            model_test('GaussianNB', GaussianNB()),
+            model_test('KNeighbors', KNeighborsClassifier(3)),
+            model_test('SVM', SVC(kernel="linear", C=0.025, random_state=42))
+        )
+    
+    else:
+    
+        models = (
+            model_test('ARD', ARDRegression()),
+            model_test('BayesianRidge', BayesianRidge()),
+            model_test('ElasticNet', ElasticNet(alpha=1, fit_intercept=False)),
+            model_test('GammaRegressor', GammaRegressor(alpha=1, fit_intercept=False)),
+            model_test('HuberRegressor', HuberRegressor(alpha=1, fit_intercept=False)),
+            model_test('Lars', Lars(fit_intercept=False)),
+            model_test('Lasso', Lasso(alpha=1, fit_intercept=False)),
+            model_test('LassoLars', LassoLars(alpha=1, fit_intercept=False)),
+            model_test('LinearRegression', LinearRegression(fit_intercept=False)),
+            model_test('MultiTaskElasticNet', MultiTaskElasticNet(alpha=1, fit_intercept=False)),
+            model_test('MultiTaskLasso', MultiTaskLasso(alpha=1, fit_intercept=False)),
+            model_test('OMP', OrthogonalMatchingPursuit(fit_intercept=False)),
+            model_test('Poisson', PoissonRegressor(alpha=1, fit_intercept=False)),
+            model_test('Quantile', QuantileRegressor(alpha=1, fit_intercept=False)),
+            model_test('RANSAC', RANSACRegressor()),
+            model_test('Ridge', Ridge(alpha=1, fit_intercept=False)),
+            model_test('SGD', SGDRegressor(fit_intercept=False)),
+            model_test('TheilSen', TheilSenRegressor(fit_intercept=False)),
+            model_test('Tweedie', TweedieRegressor(alpha=1, fit_intercept=False)),
+            model_test('AdaBoost', AdaBoostRegressor(random_state=42)),
+            model_test('Bagging', BaggingRegressor(random_state=42)),
+            model_test('ExtraTrees', ExtraTreesRegressor(random_state=42)),
+            model_test('GradientBoosting', GradientBoostingRegressor(random_state=42)),
+            model_test('HistGradientBoosting', HistGradientBoostingRegressor(random_state=42)),
+            model_test('GaussianProcess', GaussianProcessRegressor(random_state=42)),
+            model_test('RandomForest', RandomForestRegressor(max_depth=5, n_estimators=10, max_features=1, random_state=42)),
+            model_test('NeuralNet', MLPRegressor(alpha=1, max_iter=1000, random_state=42)),
+            model_test('SVM', SVR(kernel="linear", C=0.025))
+        )
+    
+    return models
+
+### ---------------------------------------- ###
+
+def evaluate_all_models(X: pd.DataFrame, y: pd.DataFrame, models: tuple[Callable], binary: bool=False):
     
     """
     Wrapper for sequentially testing each model and compiling a report
@@ -290,8 +422,8 @@ def evaluate_all_models(X: pd.DataFrame, y: pd.DataFrame, models: dict[Callable]
         Variables to be used for prediction
     y : pd.DataFrame
         Variable to predict
-    models : dict[Callable]
-        Dictionary of model_test classes
+    models : set[Callable]
+        Tuple of model_test classes
     binary:
         Set to True to evaluate binary classification
         Set to False for continuous variables
@@ -352,10 +484,16 @@ def plot_continuous_evaluation(models_evaluation: pd.DataFrame, output_name: str
     
     # Plot
     
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 12), sharex=True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(np.unique(plot_data['model']).shape[0], 12), sharex=True)
     
     for ax,param in zip(axes, ['mse', 'r2']):
+        
+        # Set y limits
+        
+        min_y, max_y = plot_data[param].quantile(0.05), plot_data[param].quantile(0.95)
     
+        # Boxplot
+        
         sns.boxplot(
             data=plot_data,
             x='model',
@@ -363,6 +501,8 @@ def plot_continuous_evaluation(models_evaluation: pd.DataFrame, output_name: str
             hue='model',
             ax=ax
         )
+        
+        # Stripplot
         
         sns.stripplot(
             data=plot_data,
@@ -373,6 +513,8 @@ def plot_continuous_evaluation(models_evaluation: pd.DataFrame, output_name: str
         )
         
         ax.set_ylabel(param, fontweight='bold')
+        
+        ax.set_ylim(min_y, max_y)
     
     plt.xlabel(None)
     plt.xticks(rotation=45, fontweight='bold', ha='right')
@@ -406,7 +548,7 @@ def plot_binary_evaluation(models_evaluation: pd.DataFrame, output_name: str='ml
     
     # Plot
     
-    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 12), sharex=True)
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(np.unique(plot_data['model']).shape[0], 12), sharex=True)
     
     for ax,param in zip(axes, ['overall\naccuracy', 'class-0\naccuracy', 'class-1\naccuracy']):
     
@@ -444,21 +586,9 @@ if __name__ == '__main__':
     
     output_suffix = 'continuous' if not binary_mode else 'binary'
     
-    # Init models dict
+    # Init models set
     
-    models = {
-        model_test('AdaBoost', AdaBoostClassifier(algorithm="SAMME", random_state=42)),
-        model_test('GaussianNB', GaussianNB()),
-        model_test('LinearDiscriminant', LinearDiscriminantAnalysis(store_covariance=True)),
-        model_test('QuadraticDiscriminant', QuadraticDiscriminantAnalysis(store_covariance=True)),
-        model_test('LogisticRegression', LogisticRegression(fit_intercept=False, max_iter=10000)),
-        model_test('Lasso', Lasso(alpha=1, fit_intercept=False)),
-        model_test('Ridge', Ridge(alpha=1, fit_intercept=False)),
-        model_test('NeuralNet', MLPClassifier(alpha=1, max_iter=1000, random_state=42)),
-        model_test('KNeighbors', KNeighborsClassifier(3)),
-        model_test('SVM', SVC(kernel="linear", C=0.025, random_state=42)),
-        model_test('RandomForest', RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1, random_state=42))
-    }
+    models = init_models(binary_mode)
     
     # Evaluate models
     
