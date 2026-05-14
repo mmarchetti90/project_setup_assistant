@@ -6,11 +6,13 @@ set -o pipefail
 ### Main paths and variables
 
 venv_path="/Users/earthsea/Documents/hf_transformers_env/.env/bin/activate"
-ai_assistant_path="/Users/earthsea/Documents/hf_transformers_env/ai_assistant_v2"
+ai_assistant_path="/Users/earthsea/Documents/hf_transformers_env/project_setup_assistant_v2"
 module_root="src"
 config_path="${ai_assistant_path}/config/config.json"
 notes_path="${1:-missing}"
 code_retrieval_stringency="${1:-false}"
+
+export PYTHONPATH="${ai_assistant_path}:$PYTHONPATH"
 
 if [ "${code_retrieval_stringency}" = "true" ]
 then

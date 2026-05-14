@@ -361,7 +361,7 @@ def plot_umap(umap_data, info=[], info_name='', out_plot='umap.png'):
         # Prepare data for plotting
         
         plot_data = umap_data.loc[:, ['UMAP1', 'UMAP2']].copy()
-        plot_data.loc[:, info_name] = [info.loc[info['sample'] == sample, 'condition'].values[0] if sample in info['sample'].values else 'NA' for sample in pca_data.index]
+        plot_data.loc[:, info_name] = [info.loc[info['sample'] == sample, 'condition'].values[0] if sample in info['sample'].values else 'NA' for sample in umap_data.index]
         
         # Plot data
         
@@ -464,11 +464,11 @@ norm_counts = normalize_counts(norm_counts)
 
 print('Running correlation analysis')
 
+run_correlation(norm_counts)
+
 ### PCA + UMAP
 
 print('Reducing dimensions')
-
-run_correlation(norm_counts)
 
 pca_model, pca_data, explained_variance, optimal_components, umap_model, umap_data = reduce_dimensions(norm_counts)
 

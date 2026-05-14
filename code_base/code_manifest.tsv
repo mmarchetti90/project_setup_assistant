@@ -29,6 +29,7 @@ unbalanced_dataset_split.py	data exploration; machine learning	Data exploration 
 cytoarray_baf_and_lrr_plots.py	data visualization	Plots Log R Ratio (LRR) and B Allele Frequency (LRR) data from cytological arrays for CNV detection	Local
 volcano_plots.R	data visualization; general utilities; rna	Volcano plot of differentially expressed genes	Local
 sunburst_composition.py	data visualization; metagenomics	Sunburst plot of bacteria composition in replicates of sample groups	Local
+deg_upset_plot.py	data visualization; rna	UpSet plot of DEA data	Local
 rlog_pheatmap.R	data visualization; rna	Heatmap using rlog-normalized expression data	Local
 run_triwise.R	data visualization; rna	Tri-wise plot from differential gene expression data	Local
 circos_plot.py	data visualization; variant calling	Circos plot of chromosomal aberrations by patient	Local
@@ -42,6 +43,7 @@ fix_fastq_pair.sh	genomic utilities	Removing non-paired reads in sequencing mate
 genomic_utils.py	genomic utilities	Generally useful utilities for genomic data	Local
 get_contig_size.py	genomic utilities	Get the size of contains in a fasta file	Local
 get_genes_bed.py	genomic utilities	Creates a bed file for gene regions	Local
+make_contig_bed.py	genomic utilities	Creates a bed file for full contigs	Local
 split_fasta.py	genomic utilities	Converts a multi-contig fasta to individual fasta files	Local
 MalpighianTubulesAnalysis	image analysis	Visualization of chromatin data peaks	git@github.com:mmarchetti90/MalpighianTubulesAnalysis.git
 image_utils.py	image analysis	Analysis of raw chromatin sequencing data	Local

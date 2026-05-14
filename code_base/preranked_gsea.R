@@ -69,7 +69,14 @@ importDEA <- function(params) {
   
     sign <- rep(1, nrow(dea))  
     sign[dea$log2FoldChange < 0] <- -1
-    dea["rank"] <- sign * (- log10(dea$padj))
+    if(min(dea$padj) == 0) {
+      
+      dea["rank"] <- sign * (- log10(dea$padj + 1))
+      
+    } else {
+      
+      dea["rank"] <- sign * (- log10(dea$padj))
+    }
     
   }
   

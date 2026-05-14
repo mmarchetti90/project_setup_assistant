@@ -242,7 +242,9 @@ dea.loc[:, log2fc_col] = dea[log2fc_col].fillna(0)
 
 ### Filter by chromosome
 
-dea = dea.loc[dea['chromosome'].isin(chromosomes_of_interest),]
+if len(chromosomes_of_interest):
+    
+    dea = dea.loc[dea['chromosome'].isin(chromosomes_of_interest),]
 
 ### Summarize genes by chromosome
 

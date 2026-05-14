@@ -53,19 +53,19 @@ def dot_and_boxplot(data, x, y, hue=None, dodge=False, xlab='X', ylab='Y', size=
 
     if plot_type == 'swarm':
 
-        dots = sns.swarmplot(data_grouped, x=x, y=y, hue=hue, dodge=dodge,
-                             size=size, linewidth=linewidth, edgecolor=edgecolor, palette=colors)
+        dots = sns.swarmplot(data, x=x, y=y, hue=hue, dodge=dodge,
+                             size=size, linewidth=linewidth, edgecolor=edgecolor, palette=palette)
 
-    elif plot_type == 'swarm':
+    elif plot_type == 'strip':
 
-        dots = sns.stripplot(data_grouped, x=x, y=y, hue=hue, dodge=dodge,
-                             size=size, linewidth=linewidth, edgecolor=edgecolor, palette=colors)
+        dots = sns.stripplot(data, x=x, y=y, hue=hue, dodge=dodge,
+                             size=size, linewidth=linewidth, edgecolor=edgecolor, palette=palette)
 
     else:
 
         return "ERROR: unrecognized plot type"
 
-    sns.boxplot(data_grouped, x=x, y=y, hue=hue, dodge=dodge,
+    sns.boxplot(data, x=x, y=y, hue=hue, dodge=dodge,
                 showcaps=True, boxprops={'facecolor':'None'}, showfliers=False, linewidth=2, whiskerprops={'linewidth':1},
                 ax=dots, legend=False)
 

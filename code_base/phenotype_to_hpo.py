@@ -120,7 +120,7 @@ SIMILARITY_FN_NAME = 'cosine'
 ### Parse CLI args
 
 hpo_obo_path = argv[argv.index('--hpo_obo') + 1]
-=
+
 phenotype_path = argv[argv.index('--phenotype') + 1]
 
 if '--max_candidates' in argv:
