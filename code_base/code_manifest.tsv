@@ -25,6 +25,7 @@ data_qc_dsl.py	data exploration	Domain-Specific Language for general data qualit
 dot_and_boxplot.py	data exploration; data visualization	Dot plot using data from a pandas data frame	Local
 fit_glm.py	data exploration; machine learning	Data exploration using machine learning	Local
 fit_ml_models.py	data exploration; machine learning	Data exploration using machine learning	Local
+pca_and_variables_correlation.py	data exploration; machine learning	Correlating variables to PCA dimensions	Local
 unbalanced_dataset_split.py	data exploration; machine learning	Data exploration using machine learning	Local
 cytoarray_baf_and_lrr_plots.py	data visualization	Plots Log R Ratio (LRR) and B Allele Frequency (LRR) data from cytological arrays for CNV detection	Local
 volcano_plots.R	data visualization; general utilities; rna	Volcano plot of differentially expressed genes	Local

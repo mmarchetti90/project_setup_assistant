@@ -80,7 +80,7 @@ def dot_and_boxplot(data, x, y, hue=None, dodge=False, xlab='X', ylab='Y', size=
 
     plt.tight_layout()
 
-    plt.savefig('abundance_v1.png', dpi=300)
+    plt.savefig(figname, dpi=300)
     plt.close()
 
 ### ------------------MAIN------------------ ###

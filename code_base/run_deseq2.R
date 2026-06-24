@@ -92,7 +92,7 @@ importDesign <- function(design_file, design_type) {
 runDEA <- function(params, cnts, des) {
 
 	# Removing samples from design not in counts table
-  des$sample_info <- subset(des$sample_info, rownames(des$sample_info) %in% colnames(cnts))
+	des$sample_info <- subset(des$sample_info, rownames(des$sample_info) %in% colnames(cnts))
   	
 	# Filtering and ordering counts samples
 	cnts <- cnts[, rownames(des$sample_info)]
