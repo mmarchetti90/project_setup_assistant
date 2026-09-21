@@ -151,22 +151,20 @@ def score_gene_set(norm_features, scaled_features, gene_set, gene_pool=[], bins=
     
     # Rank genes based on binned expression level, then for each bin of the genes in the gene_set, pick ctrl_genes random genes for genes with matched binned expression
     bin_size = len(gene_means) // bins
-    expression_order = np.argsort(gene_means)
+    expression_order = np.argsort(np.argsort(gene_means))
     
-    set_indexes = expression_order.loc[(scaled_features.GeneID.isin(gene_set)) |
-                                       (scaled_features.GeneSymbol.isin(gene_set))].values.tolist()
+    set_ranks = expression_order.loc[((scaled_features.GeneID.isin(gene_set)) |
+                                      (scaled_features.GeneSymbol.isin(gene_set))).values].values.tolist()
     
     ctrl_set = []
-    for index in set_indexes:
+    for rank in set_ranks:
         
-        random_pool = expression_order.index[(expression_order >= (index - bin_size // 2)) &
-                                             (expression_order <= (index + bin_size // 2)) &
-                                             ~(expression_order.isin(set_indexes))].tolist()
+        random_pool = scaled_features.GeneID[((expression_order >= (rank - bin_size // 2)) &
+                                              (expression_order <= (rank + bin_size // 2)) &
+                                              ~(expression_order.isin(set_ranks))).values].tolist()
         np.random.shuffle(random_pool)
         ctrl_set.extend(random_pool[:ctrl_genes_num])
     ctrl_set = list(set(ctrl_set)) # Removing duplicates
-    
-    ctrl_set = scaled_features.loc[ctrl_set, 'GeneID']
     
     # Computing the mean of gene_set and ctrl_set genes for each cell
     set_means = scaled_features.loc[(scaled_features.GeneID.isin(gene_set)) |
